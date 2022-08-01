@@ -1,0 +1,101 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+env:
+  DOTNET_VERSION: '6.0.x'
+  API_SOLUTION_PATH: src/SwiftTestingFrameworkAPI/SwiftTestingFrameworkAPI.sln
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+    
+jobs:
+
+  create-resources:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Azure CLI script file
+      uses: azure/CLI@v1
+      with:
+        azcliversion: 2.30.0
+        inlineScript: |
+          chmod +x $GITHUB_WORKSPACE/deploy.sh
+          $GITHUB_WORKSPACE/deploy.sh stf "South Central US"
+
+  build:
+
+    needs: create-resources
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Build with dotnet
+        run: dotnet build ${{ env.API_SOLUTION_PATH }} --configuration Release
+
+      - name: dotnet publish
+        run: dotnet publish ${{ env.API_SOLUTION_PATH }} -c Release -o ${{env.DOTNET_ROOT}}/api
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v3
+        with:
+          name: api-app
+          path: ${{env.DOTNET_ROOT}}/api
+
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        enable-AzPSSession: true
+
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Run Azure PowerShell script
+      uses: azure/powershell@v1
+      id: getPublishProfile
+      with:
+        inlineScript: |
+          $publish_profile=Get-AzWebAppPublishingProfile -ResourceGroupName stf -Name "stf-winapp"
+          echo ::set-output name=publish_profile::$( $publish_profile)
+        azPSVersion: "latest"
+
+    - name: Download artifact from build job
+      uses: actions/download-artifact@v3
+      with:
+        name: api-app
+        path: api-app
+
+    - name: Deploy to Azure Web App
+      id: deploy-to-webapp
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: stf-winapp
+        publish-profile: ${{ steps.getPublishProfile.outputs.publish_profile }}
+        package: api-app

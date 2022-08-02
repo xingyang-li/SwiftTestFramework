@@ -57,7 +57,7 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
-Properties/
+[Pp]roperties/
 
 # Visual Studio 2015 cache/options directory
 .vs/
@@ -225,9 +225,13 @@ ClientBin/
 *.dbproj.schemaview
 *.jfm
 *.pfx
+*.ppk
+*.pub
 *.publishsettings
 node_modules/
 orleans.codegen.cs
+aleksbolmariner
+
 
 # Since there are multiple workflows, uncomment next line to ignore bower_components
 # (https://github.com/github/gitignore/pull/1529#issuecomment-104372622)

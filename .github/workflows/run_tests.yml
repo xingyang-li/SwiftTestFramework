@@ -30,4 +30,4 @@ jobs:
       run: dotnet build ${{ env.FRAMEWORK_PROJECT_PATH }} --configuration Release -p:Location=southcentralus
 
     - name: Test with dotnet
-      run: dotnet test ${{ env.FRAMEWORK_PROJECT_PATH }} --no-build
+      run: dotnet test ${{ env.FRAMEWORK_PROJECT_PATH }} --no-build --configuration Release

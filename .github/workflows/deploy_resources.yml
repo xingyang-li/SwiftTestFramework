@@ -85,7 +85,7 @@ jobs:
 
 
   deploy:
-    needs: [build, create-resources]
+    needs: [build, create-resources, get-locations]
     runs-on: ubuntu-latest
     continue-on-error: true
     strategy:

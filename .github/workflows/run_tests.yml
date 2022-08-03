@@ -10,8 +10,11 @@ on:
   schedule:
     # * is a special character in YAML so you have to quote this string
     - cron:  '0 * * * *'
-  pull_request:
-    branches: [ "main" ]
+  workflow_run:
+    workflows: ["Azure CI"]
+    types:
+      - completed
+
 
 jobs:
 

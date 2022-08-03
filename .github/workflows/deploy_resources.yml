@@ -38,6 +38,7 @@ jobs:
   create-resources:
     needs: get-locations
     runs-on: ubuntu-latest
+    if: "!contains(toJSON(github.event.commits.*.message), '[skip-ci]')"
     continue-on-error: true
     strategy:
       matrix: ${{ fromJson(needs.get-locations.outputs.matrix) }}
@@ -87,6 +88,7 @@ jobs:
   deploy:
     needs: [build, create-resources, get-locations]
     runs-on: ubuntu-latest
+    if: ${{ !failure() }}
     continue-on-error: true
     strategy:
       matrix: ${{ fromJson(needs.get-locations.outputs.matrix) }}

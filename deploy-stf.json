@@ -363,7 +363,7 @@
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]"
       ],
-      "location": "southcentralus",
+      "location": "[resourceGroup().location]",
       "properties": {
         "privateLinkServiceConnections": [
           {

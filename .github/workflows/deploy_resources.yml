@@ -22,6 +22,8 @@ jobs:
       matrix: ${{ steps.get-matrix.outputs.matrix }}
 
     steps:
+    - uses: actions/checkout@v3
+
     - name: Read Locations
       id: get-matrix
       run: echo ::set-output name=matrix::$(cat $GITHUB_WORKSPACE/location_matrix.txt)

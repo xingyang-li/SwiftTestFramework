@@ -33,7 +33,7 @@ jobs:
     needs: get-locations
     strategy:
       matrix: 
-        location: ${{ needs.get-locations.outputs.matrix }}
+        location: ${{ fromJson(needs.get-locations.outputs.matrix) }}
     runs-on: ubuntu-latest
 
     steps:

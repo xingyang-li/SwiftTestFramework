@@ -16,17 +16,32 @@ on:
     
 jobs:
 
-  create-resources:
+  get-locations:
     runs-on: ubuntu-latest
-    steps:
+    outputs: 
+      matrix: ${{ steps.get-matrix.outputs.matrix }}
 
+    steps:
+    - name: Read Locations
+    - id: get-matrix
+      run: echo ::set-output name=matrix::$(cat $GITHUB_WORKSPACE/location_matrix.txt)
+
+
+  create-resources:
+    needs: get-locations
+    strategy:
+      matrix: 
+        location: ${{ needs.get-locations.outputs.matrix }}
+    runs-on: ubuntu-latest
+
+    steps:
     - name: Azure Login
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v3
 
     - name: Azure CLI script file
       uses: azure/CLI@v1
@@ -34,7 +49,7 @@ jobs:
         azcliversion: 2.30.0
         inlineScript: |
           chmod +x $GITHUB_WORKSPACE/deploy.sh
-          $GITHUB_WORKSPACE/deploy.sh stf "South Central US"
+          $GITHUB_WORKSPACE/deploy.sh stf-${{ matrix.location }} ${{ matrix.location }}
 
   build:
 
@@ -67,7 +82,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
     - name: Azure Login
       uses: azure/login@v1
       with:

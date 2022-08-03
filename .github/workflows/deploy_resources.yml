@@ -29,14 +29,12 @@ jobs:
       run: |
         JSON=$(cat $GITHUB_WORKSPACE/location_matrix.json)
         echo "::set-output name=matrix::${JSON//'%'/'%25'}"
-        echo ${JSON//'%'/'%25'}
 
 
   create-resources:
     needs: get-locations
     strategy:
-      matrix: 
-        location: ${{ fromJson(needs.get-locations.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.get-locations.outputs.matrix) }}
     runs-on: ubuntu-latest
 
     steps:

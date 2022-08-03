@@ -60,7 +60,7 @@ jobs:
           $GITHUB_WORKSPACE/deploy.sh stf-${{ matrix.location }} ${{ matrix.location }}
 
   build:
-    needs: create-resources
+    needs: get-locations
     runs-on: ubuntu-latest
 
     steps:
@@ -85,8 +85,11 @@ jobs:
 
 
   deploy:
-    needs: build
+    needs: [build, create-resources]
     runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      matrix: ${{ fromJson(needs.get-locations.outputs.matrix) }}
 
     steps:
     - name: Azure Login
@@ -109,8 +112,8 @@ jobs:
       id: getPublishProfile
       with:
         inlineScript: |
-          $publish_profile_winapp=Get-AzWebAppPublishingProfile -ResourceGroupName stf -Name "stf-winapp"
-          $publish_profile_linuxapp=Get-AzWebAppPublishingProfile -ResourceGroupName stf -Name "stf-linuxapp"
+          $publish_profile_winapp=Get-AzWebAppPublishingProfile -ResourceGroupName stf-${{ matrix.location }} -Name "stf-${{ matrix.location }}-winapp"
+          $publish_profile_linuxapp=Get-AzWebAppPublishingProfile -ResourceGroupName stf-${{ matrix.location }} -Name "stf-${{ matrix.location }}-linuxapp"
           echo ::set-output name=publish_profile_winapp::$( $publish_profile_winapp)
           echo ::set-output name=publish_profile_linuxapp::$( $publish_profile_linuxapp)
         azPSVersion: "latest"
@@ -119,7 +122,7 @@ jobs:
       id: deploy-to-windows-webapp
       uses: azure/webapps-deploy@v2
       with:
-        app-name: stf-winapp
+        app-name: stf-${{ matrix.location }}-winapp
         publish-profile: ${{ steps.getPublishProfile.outputs.publish_profile_winapp }}
         package: api-app
     
@@ -127,6 +130,6 @@ jobs:
       id: deploy-to-linux-webapp
       uses: azure/webapps-deploy@v2
       with:
-        app-name: stf-linuxapp
+        app-name: stf-${{ matrix.location }}-linuxapp
         publish-profile: ${{ steps.getPublishProfile.outputs.publish_profile_linuxapp }}
         package: api-app

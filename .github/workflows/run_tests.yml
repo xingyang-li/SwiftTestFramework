@@ -8,15 +8,45 @@ env:
 
 on:
   schedule:
-    # * is a special character in YAML so you have to quote this string
     - cron:  '0 * * * *'
-  pull_request:
-    branches: [ "main" ]
+
+  workflow_run:
+    workflows: ["Azure CI"]
+    types:
+      - completed
+    branches: ['**']
+
+concurrency: 
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
 
-  build-and-test:
+  get-locations:
     runs-on: ubuntu-latest
+    outputs: 
+      matrix: ${{ steps.get-matrix.outputs.matrix }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Read Locations
+      id: get-matrix
+      run: |
+        content=`cat $GITHUB_WORKSPACE/location_matrix.json`
+          # the following lines are only required for multi line json
+        content="${content//'%'/'%25'}"
+        content="${content//$'\n'/'%0A'}"
+        content="${content//$'\r'/'%0D'}"
+          # end of optional handling for multi line json
+        echo "::set-output name=matrix::$content"
+
+  build-and-test:
+    needs: get-locations
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    strategy:
+      matrix: ${{ fromJson(needs.get-locations.outputs.matrix) }}
 
     steps:
     - uses: actions/checkout@v3
@@ -27,7 +57,7 @@ jobs:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
     - name: Build with dotnet
-      run: dotnet build ${{ env.FRAMEWORK_PROJECT_PATH }} --configuration Release -p:Location=southcentralus
+      run: dotnet build ${{ env.FRAMEWORK_PROJECT_PATH }} --configuration Release -p:Location=${{ matrix.location }}
 
     - name: Test with dotnet
       run: dotnet test ${{ env.FRAMEWORK_PROJECT_PATH }} --no-build --configuration Release

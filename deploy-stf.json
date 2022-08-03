@@ -53,7 +53,7 @@
     "networkInterfaceName": "[concat(parameters('projectName'), '-nic')]",
     "networkSecurityGroupName": "[concat(parameters('projectName'), '-nsg')]",
     "networkSecurityGroupName2": "[concat(variables('vNetSubnetName'), '-nsg')]",
-    "storageAccountName": "[concat(parameters('projectName'), 'stor')]",
+    "storageAccountName": "[concat('stf', parameters('location'), 'stor')]",
     "privateEndpointConnName": "[concat(parameters('projectName'), '-pe')]",
     "privateZoneName": "privatelink.blob.core.windows.net"
   },
@@ -363,7 +363,7 @@
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]"
       ],
-      "location": "southcentralus",
+      "location": "[resourceGroup().location]",
       "properties": {
         "privateLinkServiceConnections": [
           {
@@ -430,10 +430,10 @@
       "name": "[variables('windowsAppServicePlanName')]",
       "location": "[parameters('location')]",
       "sku": {
-        "name": "S1",
-        "tier": "Standard",
-        "size": "S1",
-        "family": "S",
+        "name": "P1v2",
+        "tier": "PremiumV2",
+        "size": "P1v2",
+        "family": "Pv2",
         "capacity": 1
       },
       "kind": "app",

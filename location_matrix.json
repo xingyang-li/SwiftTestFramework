@@ -1,7 +1,6 @@
 {
   "location": [
     "southcentralus",
-    "westcentralus",
-    "westus2" 
-  ]
+    "eastus2euap",
+    "centraluseuap"
 }

@@ -35,14 +35,6 @@ jobs:
           # end of optional handling for multi line json
         echo "::set-output name=matrix::$content"
  
-  validate-json:
-    needs: get-locations
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Validate JSON
-        run: echo "${{fromJson(needs.get-locations.outputs.matrix)}}"
-        
   create-resources:
     needs: get-locations
     runs-on: ubuntu-latest

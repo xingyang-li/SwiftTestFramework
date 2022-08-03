@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Azure CI
 
 env:
   DOTNET_VERSION: '6.0.x'
@@ -77,25 +77,35 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v1
 
-    - name: Run Azure PowerShell script
-      uses: azure/powershell@v1
-      id: getPublishProfile
-      with:
-        inlineScript: |
-          $publish_profile=Get-AzWebAppPublishingProfile -ResourceGroupName stf -Name "stf-winapp"
-          echo ::set-output name=publish_profile::$( $publish_profile)
-        azPSVersion: "latest"
-
     - name: Download artifact from build job
       uses: actions/download-artifact@v3
       with:
         name: api-app
         path: api-app
 
-    - name: Deploy to Azure Web App
-      id: deploy-to-webapp
+    - name: Run Azure PowerShell script
+      uses: azure/powershell@v1
+      id: getPublishProfile
+      with:
+        inlineScript: |
+          $publish_profile_winapp=Get-AzWebAppPublishingProfile -ResourceGroupName stf -Name "stf-winapp"
+          $publish_profile_linuxapp=Get-AzWebAppPublishingProfile -ResourceGroupName stf -Name "stf-linuxapp"
+          echo ::set-output name=publish_profile_winapp::$( $publish_profile_winapp)
+          echo ::set-output name=publish_profile_linuxapp::$( $publish_profile_linuxapp)
+        azPSVersion: "latest"
+
+    - name: Deploy to Azure Windows Web App
+      id: deploy-to-windows-webapp
       uses: azure/webapps-deploy@v2
       with:
         app-name: stf-winapp
-        publish-profile: ${{ steps.getPublishProfile.outputs.publish_profile }}
+        publish-profile: ${{ steps.getPublishProfile.outputs.publish_profile_winapp }}
+        package: api-app
+    
+    - name: Deploy to Azure Linux Web App
+      id: deploy-to-linux-webapp
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: stf-linuxapp
+        publish-profile: ${{ steps.getPublishProfile.outputs.publish_profile_linuxapp }}
         package: api-app

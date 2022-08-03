@@ -1,0 +1,33 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Testing
+
+env:
+  DOTNET_VERSION: '6.0.x'
+  FRAMEWORK_PROJECT_PATH: src/SwiftTestingFramework
+
+on:
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '0 * * * *'
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Build with dotnet
+      run: dotnet build ${{ env.FRAMEWORK_PROJECT_PATH }} --configuration Release -p:Location=southcentralus
+
+    - name: Test with dotnet
+      run: dotnet test ${{ env.FRAMEWORK_PROJECT_PATH }} --no-build --configuration Release

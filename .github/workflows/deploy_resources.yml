@@ -42,7 +42,7 @@ jobs:
   create-resources:
     needs: get-locations
     runs-on: ubuntu-latest
-    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
+    if: ${{ !contains(github.event.head_commit.message, '#skip') }}
     continue-on-error: true
     strategy:
       matrix: ${{ fromJson(needs.get-locations.outputs.matrix) }}

@@ -33,9 +33,9 @@ jobs:
 
   create-resources:
     needs: get-locations
-    strategy:
-      matrix: ${{fromJson(needs.get-locations.outputs.matrix)}}
     runs-on: ubuntu-latest
+    strategy:
+      matrix: ${{ fromJson(needs.get-locations.outputs.matrix) }}
 
     steps:
     - name: Azure Login

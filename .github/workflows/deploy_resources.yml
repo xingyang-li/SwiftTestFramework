@@ -92,7 +92,7 @@ jobs:
   deploy:
     needs: [build, create-resources, get-locations]
     runs-on: ubuntu-latest
-    if: ${{ !failure() }}
+    if: ${{ !failure()  && !cancelled()}}
     continue-on-error: true
     strategy:
       matrix: ${{ fromJson(needs.get-locations.outputs.matrix) }}

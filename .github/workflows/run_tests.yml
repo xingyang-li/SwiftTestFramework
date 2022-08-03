@@ -14,8 +14,7 @@ on:
     workflows: ["Azure CI"]
     types:
       - completed
-    branches: 
-      - '**'
+    branches: ['**']
 
 concurrency: 
   group: ${{ github.workflow }}-${{ github.ref }}

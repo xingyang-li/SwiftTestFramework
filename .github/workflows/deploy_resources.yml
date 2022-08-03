@@ -26,7 +26,9 @@ jobs:
 
     - name: Read Locations
       id: get-matrix
-      run: echo ::set-output name=matrix::$(cat $GITHUB_WORKSPACE/location_matrix.txt)
+      run: |
+        JSON=$(cat $GITHUB_WORKSPACE/location_matrix.json)
+        echo "::set-output name=matrix::${JSON//'%'/'%25'}"
 
 
   create-resources:

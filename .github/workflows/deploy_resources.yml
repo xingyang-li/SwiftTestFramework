@@ -27,8 +27,13 @@ jobs:
     - name: Read Locations
       id: get-matrix
       run: |
-        JSON=$(cat $GITHUB_WORKSPACE/location_matrix.json)
-        echo "::set-output name=matrix::${JSON//'%'/'%25'}"
+        content=`cat $GITHUB_WORKSPACE/location_matrix.json`
+          # the following lines are only required for multi line json
+        content="${content//'%'/'%25'}"
+        content="${content//$'\n'/'%0A'}"
+        content="${content//$'\r'/'%0D'}"
+          # end of optional handling for multi line json
+        echo "::set-output name=matrix::$content"
  
   validate-json:
     needs: get-locations

@@ -19,6 +19,7 @@ on:
   push: 
     paths:
       - '.github/workflows/run_tests.yml'
+      - 'src/SwiftTestingFramework/*'
 
 concurrency: 
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -48,8 +49,8 @@ jobs:
   build-and-test:
     needs: get-locations
     runs-on: ubuntu-latest
-    continue-on-error: true
     strategy:
+      fail-fast: false
       matrix: ${{ fromJson(needs.get-locations.outputs.matrix) }}
 
     steps:

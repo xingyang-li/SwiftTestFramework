@@ -67,5 +67,5 @@ jobs:
       if: success() || failure()    # run this step even if previous step failed
       with:
         name: MSTest Results           # Name of the check run which will be created
-        path: ${{ env.FRAMEWORK_PROJECT_PATH }}/TestResults  # Path to test results
+        path: ${{ env.FRAMEWORK_PROJECT_PATH }}/TestResults/*.trx  # Path to test results
         reporter: dotnet-trx

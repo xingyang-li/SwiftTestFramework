@@ -54,8 +54,12 @@
     "networkSecurityGroupName": "[concat(parameters('projectName'), '-nsg')]",
     "networkSecurityGroupName2": "[concat(variables('vNetSubnetName'), '-nsg')]",
     "storageAccountName": "[concat('stf', parameters('location'), 'stor')]",
-    "privateEndpointConnName": "[concat(parameters('projectName'), '-pe')]",
-    "privateZoneName": "privatelink.blob.core.windows.net"
+    "sqlServerName": "[concat(parameters('projectName'), '-sql')]",
+    "storagePrivateEndpointConnName": "[concat(parameters('projectName'), '-stor-pe')]",
+    "sqlPrivateEndpointConnName": "[concat(parameters('projectName'), '-sql-pe')]",
+    "privateZoneName": "privatelink.blob.core.windows.net",
+    "administratorLogin": "swiftadmin",
+    "administratorLoginPassword": "iis6!dfu"
   },
   "resources": [
     {
@@ -358,7 +362,7 @@
     {
       "type": "Microsoft.Network/privateEndpoints",
       "apiVersion": "2020-11-01",
-      "name": "[variables('privateEndpointConnName')]",
+      "name": "[variables('storagePrivateEndpointConnName')]",
       "dependsOn": [
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]"
@@ -367,7 +371,7 @@
       "properties": {
         "privateLinkServiceConnections": [
           {
-            "name": "[variables('privateEndpointConnName')]",
+            "name": "[variables('storagePrivateEndpointConnName')]",
             "properties": {
               "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
               "groupIds": [
@@ -391,9 +395,60 @@
     {
       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
       "apiVersion": "2020-11-01",
-      "name": "[concat(variables('privateEndpointConnName'), '/default')]",
+      "name": "[concat(variables('storagePrivateEndpointConnName'), '/default')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointConnName'))]"
+        "[resourceId('Microsoft.Network/privateEndpoints', variables('storagePrivateEndpointConnName'))]"
+      ],
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "privatelink-blob-core-windows-net",
+            "properties": {
+              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateZoneName'))]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints",
+      "apiVersion": "2020-11-01",
+      "name": "[variables('sqlPrivateEndpointConnName')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]"
+      ],
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "privateLinkServiceConnections": [
+          {
+            "name": "[variables('sqlPrivateEndpointConnName')]",
+            "properties": {
+              "privateLinkServiceId": "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]",
+              "groupIds": [
+                "sqlServer"
+              ],
+              "privateLinkServiceConnectionState": {
+                "status": "Approved",
+                "description": "Auto-Approved",
+                "actionsRequired": "None"
+              }
+            }
+          }
+        ],
+        "manualPrivateLinkServiceConnections": [],
+        "subnet": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNetName'), variables('vNetSubnetName'))]"
+        },
+        "customDnsConfigs": []
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2020-11-01",
+      "name": "[concat(variables('sqlPrivateEndpointConnName'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateEndpoints', variables('sqlPrivateEndpointConnName'))]"
       ],
       "properties": {
         "privateDnsZoneConfigs": [
@@ -422,6 +477,41 @@
       "sku": {
         "name": "Premium_LRS",
         "tier": "Premium"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers",
+      "apiVersion": "2021-11-01-preview",
+      "name": "[variables('sqlServerName')]",
+      "location": "[resourceGroup().location]",
+      "kind": "v12.0",
+      "properties": {
+        "version": "12.0",
+        "publicNetworkAccess": "Disabled",
+        "restrictOutboundNetworkAccess": "Disabled",
+        "administratorLogin": "[variables('administratorLogin')]",
+        "administratorLoginPassword": "[variables('administratorLoginPassword')]"
+      }
+    },
+    {
+      "type": "Microsoft.Sql/servers/databases",
+      "apiVersion": "2021-11-01-preview",
+      "name": "[concat(variables('sqlServerName'), '/testdb')]",
+      "location": "southcentralus",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]"
+      ],
+      "sku": {
+        "name": "Standard",
+        "tier": "Standard",
+        "capacity": 10
+      },
+      "kind": "v12.0,user",
+      "properties": {
+        "maxSizeBytes": 107374182400,
+        "zoneRedundant": false,
+        "readScale": "Disabled",
+        "isLedgerOn": false
       }
     },
     {

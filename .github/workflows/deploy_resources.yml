@@ -18,6 +18,9 @@ on:
     paths-ignore:
       - '.github/workflows/run_tests.yml'
       - 'src/SwiftTestingFramework/*'
+  # Triggers once every day
+  schedule:
+    - cron:  '0 0 * * *'
 
   pull_request:
     branches: [ "main" ]

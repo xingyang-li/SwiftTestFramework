@@ -16,6 +16,10 @@ on:
       - completed
     branches: ['**']
 
+  push: 
+    paths:
+      - '.github/workflows/run_tests.yml'
+
 concurrency: 
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

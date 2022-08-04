@@ -9,8 +9,8 @@ namespace SwiftTestingFramework.Utils
     public class Constants
     {
 #if southcentralus
-        public const string WindowsAppUrl = "https://stf-winapp.azurewebsites.net";
-        public const string LinuxAppUrl = "https://stf-linuxapp.azurewebsites.net";
+        public const string WindowsAppUrl = "https://stf-southcentralus-winapp.azurewebsites.net";
+        public const string LinuxAppUrl = "https://stf-southcentralus-linuxapp.azurewebsites.net";
 #elif westcentralus
         public const string WindowsAppUrl = "https://stf-westcentralus-winapp.azurewebsites.net";
         public const string LinuxAppUrl = "https://stf-westcentralus-linuxapp.azurewebsites.net";

@@ -60,4 +60,11 @@ jobs:
       run: dotnet build ${{ env.FRAMEWORK_PROJECT_PATH }} --configuration Release -p:Location=${{ matrix.location }}
 
     - name: Test with dotnet
-      run: dotnet test ${{ env.FRAMEWORK_PROJECT_PATH }} --no-build --configuration Release
+      run: dotnet test ${{ env.FRAMEWORK_PROJECT_PATH }} --no-build --configuration Release --logger "trx;LogFileName=test-results.trx"
+
+    - name: Test Report
+      uses: dorny/test-reporter@v1
+      if: success() || failure()    # run this step even if previous step failed
+      with:
+        name: MSTest Results           # Name of the check run which will be created
+        path: ${{ env.FRAMEWORK_PROJECT_PATH }}/TestResults  # Path to test results

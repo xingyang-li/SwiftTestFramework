@@ -68,7 +68,7 @@ jobs:
       run: dotnet test ${{ env.FRAMEWORK_PROJECT_PATH }} --no-build --configuration Release --logger "trx;LogFileName=test-results.trx"
 
     - name: Test Report
-      uses: dorny/test-reporter@v1
+      uses: phoenix-actions/test-reporting@v8
       if: success() || failure()    # run this step even if previous step failed
       with:
         name: MSTest Results           # Name of the check run which will be created

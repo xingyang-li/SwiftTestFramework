@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
@@ -35,8 +36,7 @@ namespace SwiftTestingFrameworkAPI.Utils
 
         public static PageBlobClient GetPageBlobClient(string blobName)
         {
-            string connectionStringName = Constants.ConnectionStringVariablePrefix + Constants.StorageConnectionStringName;
-            string connectionString = Environment.GetEnvironmentVariable(connectionStringName) ?? string.Empty;
+            string connectionString = Environment.GetEnvironmentVariable(Constants.StorageConnectionStringName) ?? string.Empty;
 
             BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
 

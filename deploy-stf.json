@@ -508,7 +508,7 @@
       },
       "kind": "v12.0,user",
       "properties": {
-        "maxSizeBytes": 107374182400,
+        "maxSizeBytes": 104857600,
         "zoneRedundant": false,
         "readScale": "Disabled",
         "isLedgerOn": false
@@ -592,6 +592,11 @@
               "name": "Storage",
               "connectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1)]",
               "type": "Custom"
+            },
+            {
+              "name": "Database",
+              "connectionString": "[concat('Server=tcp:', reference(variables('sqlServerName')).fullyQualifiedDomainName, ',1433;Initial Catalog=testdb;Persist Security Info=False;User ID=', variables('administratorLogin'), ';Password=', variables('administratorLoginPassword'), ';MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;')]",
+              "type": "SQLAzure"
             }
           ]
         },
@@ -651,6 +656,11 @@
               "name": "Storage",
               "connectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1)]",
               "type": "Custom"
+            },
+            {
+              "name": "Database",
+              "connectionString": "[concat('Server=tcp:', reference(variables('sqlServerName')).fullyQualifiedDomainName, ',1433;Initial Catalog=testdb;Persist Security Info=False;User ID=', variables('administratorLogin'), ';Password=', variables('administratorLoginPassword'), ';MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;')]",
+              "type": "SQLAzure"
             }
           ]
         },

@@ -9,10 +9,10 @@ namespace SwiftTestingFrameworkAPI.Controllers
     [Route("StorageUpload")]
     public class StorageUploadController : ControllerBase
     {
-        private readonly ILogger<PingVMController> _logger;
+        private readonly ILogger<StorageUploadController> _logger;
         private const string TestName = "StorageUpload";
 
-        public StorageUploadController(ILogger<PingVMController> logger)
+        public StorageUploadController(ILogger<StorageUploadController> logger)
         {
             _logger = logger;
         }
@@ -20,7 +20,7 @@ namespace SwiftTestingFrameworkAPI.Controllers
         [HttpGet]
         public TestResponse GetInfo()
         {
-            return new TestResponse(Constants.ApiVersion, TestName, string.Empty, string.Empty);
+            return new TestResponse(Constants.ApiVersion, TestName, string.Empty, string.Empty, string.Empty);
         }
 
         [HttpPost]
@@ -32,17 +32,17 @@ namespace SwiftTestingFrameworkAPI.Controllers
                 var response = pageBlobClient.Create(512);
                 if (response.GetRawResponse().Status == 201)
                 {
-                    return new TestResponse(Constants.ApiVersion, TestName, "Success", string.Empty);
+                    return new TestResponse(Constants.ApiVersion, TestName, "Success", "asdf", string.Empty);
                 }
                 else
                 {
-                    return new TestResponse(Constants.ApiVersion, TestName, "Failure", response.GetRawResponse().Content.ToString());
+                    return new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, response.GetRawResponse().Content.ToString());
                 }
             }
             catch (Exception ex)
             {
                 //Replace with AntaresEventProvider or email send functionality
-                return new TestResponse(Constants.ApiVersion, TestName, "Failure", ex.Message + ex.StackTrace);
+                return new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, ex.Message + ex.StackTrace);
             }
         }
     }

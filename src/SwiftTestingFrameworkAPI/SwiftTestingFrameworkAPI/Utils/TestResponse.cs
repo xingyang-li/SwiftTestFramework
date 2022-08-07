@@ -8,15 +8,16 @@ namespace SwiftTestingFrameworkAPI.Utils
 
         public string TestResult { get; set; }
 
+        public string Details { get; set; }
+
         public string ErrorMessage { get; set; }
 
-        // add field for summary/ result of test action
-
-        public TestResponse(string apiVersion, string testName, string testResult, string errorMessage)
+        public TestResponse(string apiVersion, string testName, string testResult, string details, string errorMessage)
         {
             TestName = testName;
             ApiVersion = apiVersion;
             TestResult = testResult;
+            Details = details;
             ErrorMessage = errorMessage;
         }
     }

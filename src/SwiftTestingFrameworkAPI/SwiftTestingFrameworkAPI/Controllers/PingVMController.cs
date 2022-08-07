@@ -20,7 +20,7 @@ namespace SwiftTestingFrameworkAPI.Controllers
         [HttpGet]
         public TestResponse GetInfo()
         {
-            return new TestResponse(Constants.ApiVersion, TestName, string.Empty, string.Empty);
+            return new TestResponse(Constants.ApiVersion, TestName, string.Empty, string.Empty, string.Empty);
         }
 
         [HttpPost]
@@ -41,16 +41,16 @@ namespace SwiftTestingFrameworkAPI.Controllers
 
                 if (p.ExitCode == 0)
                 {
-                    return new TestResponse(Constants.ApiVersion, TestName, "Success", string.Empty);
+                    return new TestResponse(Constants.ApiVersion, TestName, "Success", "asdf", string.Empty);
                 }
                 else
                 {
-                    return new TestResponse(Constants.ApiVersion, TestName, "Failure", p.ErrorMessage);
+                    return new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, p.ErrorMessage);
                 }
             }
             catch (Exception ex)
             {
-                return new TestResponse(Constants.ApiVersion, TestName, "Failure", ex.Message + ex.StackTrace);
+                return new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, ex.Message + ex.StackTrace);
             }
         }
     }

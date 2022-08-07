@@ -598,6 +598,16 @@
               "connectionString": "[concat('Server=tcp:', reference(variables('sqlServerName')).fullyQualifiedDomainName, ',1433;Initial Catalog=testdb;Persist Security Info=False;User ID=', variables('administratorLogin'), ';Password=', variables('administratorLoginPassword'), ';MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;')]",
               "type": "SQLAzure"
             }
+          ],
+          "appSettings": [
+            {
+              "name": "WEBSITE_DNS_SERVER",
+              "value": "168.63.129.16"
+            },
+            {
+              "name": "WEBSITE_VNET_ROUTE_ALL",
+              "value":  "1"
+            }
           ]
         },
         "scmSiteAlsoStopped": false,
@@ -661,6 +671,16 @@
               "name": "Database",
               "connectionString": "[concat('Server=tcp:', reference(variables('sqlServerName')).fullyQualifiedDomainName, ',1433;Initial Catalog=testdb;Persist Security Info=False;User ID=', variables('administratorLogin'), ';Password=', variables('administratorLoginPassword'), ';MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;')]",
               "type": "SQLAzure"
+            }
+          ],
+          "appSettings": [
+            {
+              "name": "WEBSITE_DNS_SERVER",
+              "value": "168.63.129.16"
+            },
+            {
+              "name": "WEBSITE_VNET_ROUTE_ALL",
+              "value": "1"
             }
           ]
         },

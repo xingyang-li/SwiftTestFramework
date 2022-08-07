@@ -46,5 +46,38 @@ namespace SwiftTestingFrameworkAPI.Utils
             PageBlobClient pageBlobClient = containerClient.GetPageBlobClient(blobName);
             return pageBlobClient;
         }
+
+        public static string ExecuteSqlQuery()
+        {
+            string connectionString = Environment.GetEnvironmentVariable(Constants.SqlDatabaseConnectionStringName) ?? string.Empty;
+            string queryResult = string.Empty;
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                // Connect to the database
+                conn.Open();
+
+                // Read rows
+                SqlCommand selectCommand = new SqlCommand(@"IF NOT EXISTS( SELECT * FROM sys.tables WHERE name = 'Test')
+                                                                BEGIN
+                                                                CREATE Table Test(ID Datetime PRIMARY KEY);
+                                                                END
+                                                                GO
+                                                                Declare @date Datetime;
+                                                                SET @date = GetDate();
+                                                                INSERT INTO dbo.Test Values(@date);
+                                                                SELECT* FROM Test WHERE ID = @date; ", conn
+                                                         );
+                SqlDataReader results = selectCommand.ExecuteReader();
+
+                // Enumerate over the rows
+                while(results.Read())
+                {
+                    queryResult += results[0];
+                }
+            }
+
+            return queryResult;
+        }
     }
 }

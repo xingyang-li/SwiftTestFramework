@@ -80,5 +80,29 @@ namespace SwiftTestingFramework
 
         }
     }
+
+    [TestMethod]
+    [Description("Insert an entry inside a SQL Database table")]
+    public void TestDatabaseConnection()
+    {
+        try
+        {
+            string testPath = "/SqlQuery";
+            HttpRequestMessage message = new HttpRequestMessage();
+            HttpResponseMessage response = Helper.SendRequest(client, Constants.WindowsAppUrl + testPath, HttpMethod.Post);
+            response.EnsureSuccessStatusCode();
+            string stringBody = response.Content.ReadAsStringAsync().Result;
+            TestResponse testResponse = JsonConvert.DeserializeObject<TestResponse>(stringBody);
+            Assert.AreEqual(testResponse.TestResult, "Success", testResponse.ErrorMessage);
+        }
+        catch (Exception ex)
+        {
+            //Replace with AntaresEventProvider or email send functionality
+            Logger.LogMessage(ex.ToString());
+            throw;
+        }
+
+    }
+}
 }
 

@@ -20,7 +20,8 @@ namespace SwiftTestingFrameworkAPI.Controllers
         [HttpGet]
         public TestResponse GetInfo()
         {
-            return new TestResponse(Constants.ApiVersion, TestName, string.Empty, string.Empty, string.Empty);
+            string testDetails = "Creates a table if it does not already exist in a SQL database and inserts a datetime entry. Done through a private endpoint connection.";
+            return new TestResponse(Constants.ApiVersion, TestName, string.Empty, testDetails, string.Empty);
         }
 
         [HttpPost]
@@ -29,7 +30,8 @@ namespace SwiftTestingFrameworkAPI.Controllers
             try
             {
                 string queryResult = Helper.ExecuteSqlQuery();
-                return new TestResponse(Constants.ApiVersion, TestName, "Success", queryResult, string.Empty);
+                string details = "SQL table entry inserted successfully at " + queryResult;
+                return new TestResponse(Constants.ApiVersion, TestName, "Success", details, string.Empty);
             }
             catch (Exception ex)
             {

@@ -20,7 +20,8 @@ namespace SwiftTestingFrameworkAPI.Controllers
         [HttpGet]
         public TestResponse GetInfo()
         {
-            return new TestResponse(Constants.ApiVersion, TestName, string.Empty, string.Empty, string.Empty);
+            string testDetails = "Creates a TCP connection to the virtual machine's private IP address.";
+            return new TestResponse(Constants.ApiVersion, TestName, string.Empty, testDetails, string.Empty);
         }
 
         [HttpPost]
@@ -41,11 +42,11 @@ namespace SwiftTestingFrameworkAPI.Controllers
 
                 if (p.ExitCode == 0)
                 {
-                    return new TestResponse(Constants.ApiVersion, TestName, "Success", "asdf", string.Empty);
+                    return new TestResponse(Constants.ApiVersion, TestName, "Success", p.StdOutput, string.Empty);
                 }
                 else
                 {
-                    return new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, p.ErrorMessage);
+                    return new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, p.StdError);
                 }
             }
             catch (Exception ex)

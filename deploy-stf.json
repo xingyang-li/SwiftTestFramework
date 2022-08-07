@@ -57,7 +57,8 @@
     "sqlServerName": "[concat(parameters('projectName'), '-sql')]",
     "storagePrivateEndpointConnName": "[concat(parameters('projectName'), '-stor-pe')]",
     "sqlPrivateEndpointConnName": "[concat(parameters('projectName'), '-sql-pe')]",
-    "privateZoneName": "privatelink.blob.core.windows.net",
+    "blobPrivateZoneName": "privatelink.blob.core.windows.net",
+    "databasePrivateZoneName":  "privatelink.database.windows.net",
     "administratorLogin": "swiftadmin",
     "administratorLoginPassword": "iis6!dfu"
   },
@@ -328,7 +329,7 @@
     {
       "type": "Microsoft.Network/privateDnsZones",
       "apiVersion": "2018-09-01",
-      "name": "[variables('privateZoneName')]",
+      "name": "[variables('blobPrivateZoneName')]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]"
       ],
@@ -346,10 +347,10 @@
     {
       "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
       "apiVersion": "2018-09-01",
-      "name": "[concat(variables('privateZoneName'), '/n33a3tkelqvqk')]",
+      "name": "[concat(variables('blobPrivateZoneName'), '/n33a3tkelqvqk')]",
       "location": "global",
       "dependsOn": [
-        "[resourceId('Microsoft.Network/privateDnsZones', variables('privateZoneName'))]",
+        "[resourceId('Microsoft.Network/privateDnsZones', variables('blobPrivateZoneName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]"
       ],
       "properties": {
@@ -404,10 +405,44 @@
           {
             "name": "privatelink-blob-core-windows-net",
             "properties": {
-              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateZoneName'))]"
+              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('blobPrivateZoneName'))]"
             }
           }
         ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2018-09-01",
+      "name": "[variables('databasePrivateZoneName')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]"
+      ],
+      "location": "global",
+      "properties": {
+        "maxNumberOfRecordSets": 25000,
+        "maxNumberOfVirtualNetworkLinks": 1000,
+        "maxNumberOfVirtualNetworkLinksWithRegistration": 100,
+        "numberOfRecordSets": 2,
+        "numberOfVirtualNetworkLinks": 1,
+        "numberOfVirtualNetworkLinksWithRegistration": 0,
+        "provisioningState": "Succeeded"
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "2018-09-01",
+      "name": "[concat(variables('databasePrivateZoneName'), '/n33a3tkelqvqk')]",
+      "location": "global",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateDnsZones', variables('databasePrivateZoneName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]"
+      ],
+      "properties": {
+        "registrationEnabled": false,
+        "virtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]"
+        }
       }
     },
     {
@@ -453,9 +488,9 @@
       "properties": {
         "privateDnsZoneConfigs": [
           {
-            "name": "privatelink-blob-core-windows-net",
+            "name": "privatelink-database-windows-net",
             "properties": {
-              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateZoneName'))]"
+              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('databasePrivateZoneName'))]"
             }
           }
         ]
@@ -606,7 +641,7 @@
             },
             {
               "name": "WEBSITE_VNET_ROUTE_ALL",
-              "value":  "1"
+              "value": "1"
             }
           ]
         },

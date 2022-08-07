@@ -20,7 +20,8 @@ namespace SwiftTestingFrameworkAPI.Controllers
         [HttpGet]
         public TestResponse GetInfo()
         {
-            return new TestResponse(Constants.ApiVersion, TestName, string.Empty, string.Empty, string.Empty);
+            string testDetails = "Uploads an empty blob into a storage container through a private endpoint connection.";
+            return new TestResponse(Constants.ApiVersion, TestName, string.Empty, testDetails, string.Empty);
         }
 
         [HttpPost]
@@ -32,7 +33,7 @@ namespace SwiftTestingFrameworkAPI.Controllers
                 var response = pageBlobClient.Create(512);
                 if (response.GetRawResponse().Status == 201)
                 {
-                    return new TestResponse(Constants.ApiVersion, TestName, "Success", "asdf", string.Empty);
+                    return new TestResponse(Constants.ApiVersion, TestName, "Success", "Blob uploaded successfully.", string.Empty);
                 }
                 else
                 {

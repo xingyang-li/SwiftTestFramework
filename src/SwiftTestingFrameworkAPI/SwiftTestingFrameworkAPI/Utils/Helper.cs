@@ -12,12 +12,14 @@ namespace SwiftTestingFrameworkAPI.Utils
         public class ProcessOutput 
         {
             public int ExitCode { get; set; }
-            public string ErrorMessage { get; set; }
+            public string StdOutput { get; set; }
+            public string StdError { get; set; }
 
-            public ProcessOutput(int exitCode, string errorMessage)
+            public ProcessOutput(int exitCode, string stdOutput, string stdError)
             {
                 ExitCode = exitCode;
-                ErrorMessage = errorMessage;
+                StdOutput = stdOutput;
+                StdError = stdError;
             }
         }
 
@@ -28,10 +30,12 @@ namespace SwiftTestingFrameworkAPI.Utils
             p.StartInfo.Arguments = arguments;
             p.StartInfo.CreateNoWindow = true;
             p.StartInfo.RedirectStandardError = true;
+            p.StartInfo.RedirectStandardOutput = true;
             p.Start();
-            string err = p.StandardError.ReadToEnd();
+            string stdOutput = p.StandardOutput.ReadToEnd();
+            string stdError = p.StandardError.ReadToEnd();
             p.WaitForExit();
-            return new ProcessOutput(p.ExitCode, err);
+            return new ProcessOutput(p.ExitCode, stdOutput, stdError);
         }
 
         public static PageBlobClient GetPageBlobClient(string blobName)
@@ -61,20 +65,25 @@ namespace SwiftTestingFrameworkAPI.Utils
                 SqlCommand selectCommand = new SqlCommand(@"IF NOT EXISTS( SELECT * FROM sys.tables WHERE name = 'Test')
                                                                 BEGIN
                                                                 CREATE Table Test(ID Datetime PRIMARY KEY);
-                                                                END
-                                                                GO
-                                                                Declare @date Datetime;
+                                                                END", conn
+                                                         );
+                SqlDataReader results = selectCommand.ExecuteReader();
+                conn.Close();
+
+                conn.Open();
+                selectCommand = new SqlCommand(@"Declare @date Datetime;
                                                                 SET @date = GetDate();
                                                                 INSERT INTO dbo.Test Values(@date);
                                                                 SELECT* FROM Test WHERE ID = @date; ", conn
                                                          );
-                SqlDataReader results = selectCommand.ExecuteReader();
+                results = selectCommand.ExecuteReader();
 
                 // Enumerate over the rows
-                while(results.Read())
+                while (results.Read())
                 {
                     queryResult += results[0];
                 }
+                conn.Close();
             }
 
             return queryResult;

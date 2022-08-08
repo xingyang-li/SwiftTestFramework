@@ -2,6 +2,10 @@
   "location": [
     "southcentralus",
     "eastus2euap",
-    "centraluseuap"
+    "centraluseuap",
+    "northcentralus",
+    "westcentralus",
+    "westeurope",
+    "westus2"
   ]
 }

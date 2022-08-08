@@ -20,7 +20,7 @@ namespace SwiftTestingFrameworkAPI.Controllers
         [HttpGet]
         public TestResponse GetInfo()
         {
-            string testDetails = "Creates a TCP connection to the virtual machine's private IP address.";
+            string testDetails = "Establishes a TCP connection with VNET virtual machine's private IP address.";
             return new TestResponse(Constants.ApiVersion, TestName, string.Empty, testDetails, string.Empty);
         }
 

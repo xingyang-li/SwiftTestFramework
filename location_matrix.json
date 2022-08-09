@@ -1,6 +1,8 @@
 {
   "location": [
     "southcentralus",
+	"westcentralus",
+	"northcentralus",
     "eastus2euap",
     "centraluseuap",
     "westeurope"

@@ -84,6 +84,9 @@ namespace SwiftTestingFramework
         [Description("Insert an entry inside a SQL Database table")]
         public void TestDatabaseConnection()
         {
+#if (westcentralus || northcentralus)
+            Assert.Inconclusive();
+#endif
             try
             {
                 string testPath = "/SqlQuery";

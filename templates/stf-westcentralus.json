@@ -58,7 +58,7 @@
     "storagePrivateEndpointConnName": "[concat(parameters('projectName'), '-stor-pe')]",
     "sqlPrivateEndpointConnName": "[concat(parameters('projectName'), '-sql-pe')]",
     "blobPrivateZoneName": "privatelink.blob.core.windows.net",
-    "databasePrivateZoneName":  "privatelink.database.windows.net",
+    "databasePrivateZoneName": "privatelink.database.windows.net",
     "administratorLogin": "swiftadmin",
     "administratorLoginPassword": "iis6!dfu"
   },
@@ -446,57 +446,6 @@
       }
     },
     {
-      "type": "Microsoft.Network/privateEndpoints",
-      "apiVersion": "2020-11-01",
-      "name": "[variables('sqlPrivateEndpointConnName')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]",
-        "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]"
-      ],
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "privateLinkServiceConnections": [
-          {
-            "name": "[variables('sqlPrivateEndpointConnName')]",
-            "properties": {
-              "privateLinkServiceId": "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]",
-              "groupIds": [
-                "sqlServer"
-              ],
-              "privateLinkServiceConnectionState": {
-                "status": "Approved",
-                "description": "Auto-Approved",
-                "actionsRequired": "None"
-              }
-            }
-          }
-        ],
-        "manualPrivateLinkServiceConnections": [],
-        "subnet": {
-          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNetName'), variables('vNetSubnetName'))]"
-        },
-        "customDnsConfigs": []
-      }
-    },
-    {
-      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-      "apiVersion": "2020-11-01",
-      "name": "[concat(variables('sqlPrivateEndpointConnName'), '/default')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Network/privateEndpoints', variables('sqlPrivateEndpointConnName'))]"
-      ],
-      "properties": {
-        "privateDnsZoneConfigs": [
-          {
-            "name": "privatelink-database-windows-net",
-            "properties": {
-              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('databasePrivateZoneName'))]"
-            }
-          }
-        ]
-      }
-    },
-    {
       "name": "[variables('storageAccountName')]",
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2021-04-01",
@@ -512,41 +461,6 @@
       "sku": {
         "name": "Premium_LRS",
         "tier": "Premium"
-      }
-    },
-    {
-      "type": "Microsoft.Sql/servers",
-      "apiVersion": "2021-11-01-preview",
-      "name": "[variables('sqlServerName')]",
-      "location": "[resourceGroup().location]",
-      "kind": "v12.0",
-      "properties": {
-        "version": "12.0",
-        "publicNetworkAccess": "Disabled",
-        "restrictOutboundNetworkAccess": "Disabled",
-        "administratorLogin": "[variables('administratorLogin')]",
-        "administratorLoginPassword": "[variables('administratorLoginPassword')]"
-      }
-    },
-    {
-      "type": "Microsoft.Sql/servers/databases",
-      "apiVersion": "2021-11-01-preview",
-      "name": "[concat(variables('sqlServerName'), '/testdb')]",
-      "location": "[resourceGroup().location]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]"
-      ],
-      "sku": {
-        "name": "Standard",
-        "tier": "Standard",
-        "capacity": 10
-      },
-      "kind": "v12.0,user",
-      "properties": {
-        "maxSizeBytes": 104857600,
-        "zoneRedundant": false,
-        "readScale": "Disabled",
-        "isLedgerOn": false
       }
     },
     {
@@ -627,11 +541,6 @@
               "name": "Storage",
               "connectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1)]",
               "type": "Custom"
-            },
-            {
-              "name": "Database",
-              "connectionString": "[concat('Server=tcp:', reference(variables('sqlServerName')).fullyQualifiedDomainName, ',1433;Initial Catalog=testdb;Persist Security Info=False;User ID=', variables('administratorLogin'), ';Password=', variables('administratorLoginPassword'), ';MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;')]",
-              "type": "SQLAzure"
             }
           ],
           "appSettings": [
@@ -701,11 +610,6 @@
               "name": "Storage",
               "connectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1)]",
               "type": "Custom"
-            },
-            {
-              "name": "Database",
-              "connectionString": "[concat('Server=tcp:', reference(variables('sqlServerName')).fullyQualifiedDomainName, ',1433;Initial Catalog=testdb;Persist Security Info=False;User ID=', variables('administratorLogin'), ';Password=', variables('administratorLoginPassword'), ';MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;')]",
-              "type": "SQLAzure"
             }
           ],
           "appSettings": [

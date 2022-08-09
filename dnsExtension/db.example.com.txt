@@ -14,5 +14,5 @@ $TTL    604800
     IN      NS      ns.example.com.
     
 ; name server - A records
-ns.example.com     IN      A       127.0.0.53
-swift     IN      A       10.0.0.4
+ns.example.com.     IN      A       127.0.0.53
+swift.example.com.     IN      A       10.0.0.4

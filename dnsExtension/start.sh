@@ -9,7 +9,6 @@ sudo wget https://raw.githubusercontent.com/xingyang-li/SwiftTestFramework/main/
 sudo mv named.conf.local.txt /etc/bind/named.conf.local
 sudo wget https://raw.githubusercontent.com/xingyang-li/SwiftTestFramework/main/dnsExtension/db.example.com.txt
 sudo mv stf.db.example.com.txt /etc/bind/db.example.com
-echo "nameserver 10.0.0.4" /etc/resolv.conf
 sudo service bind9 restart
 
 

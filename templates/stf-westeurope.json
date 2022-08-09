@@ -637,7 +637,7 @@
           "appSettings": [
             {
               "name": "WEBSITE_DNS_SERVER",
-              "value": "168.63.129.16"
+              "value": "10.0.0.4,168.63.129.16"
             },
             {
               "name": "WEBSITE_VNET_ROUTE_ALL",
@@ -711,7 +711,7 @@
           "appSettings": [
             {
               "name": "WEBSITE_DNS_SERVER",
-              "value": "168.63.129.16"
+              "value": "10.0.0.4,168.63.129.16"
             },
             {
               "name": "WEBSITE_VNET_ROUTE_ALL",

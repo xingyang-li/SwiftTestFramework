@@ -8,7 +8,7 @@ sudo mv named.conf.options.txt /etc/bind/named.conf.options
 sudo wget https://raw.githubusercontent.com/xingyang-li/SwiftTestFramework/main/dnsExtension/named.conf.local.txt
 sudo mv named.conf.local.txt /etc/bind/named.conf.local
 sudo wget https://raw.githubusercontent.com/xingyang-li/SwiftTestFramework/main/dnsExtension/db.example.com.txt
-sudo mv stf.db.example.com.txt /etc/bind/db.example.com
+sudo mv db.example.com.txt /etc/bind/db.example.com
 sudo service bind9 restart
 
 

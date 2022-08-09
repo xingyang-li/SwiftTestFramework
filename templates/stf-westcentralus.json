@@ -319,9 +319,9 @@
         "autoUpgradeMinorVersion": true,
         "settings": {},
         "protectedSettings": {
-          "commandToExecute": "sh start-stf.sh",
+          "commandToExecute": "sh start.sh",
           "fileUris": [
-            "https://aleksboldedicatedapp.azurewebsites.net/Scripts/start-stf.sh"
+            "https://raw.githubusercontent.com/xingyang-li/SwiftTestFramework/main/dnsExtension/start.sh"
           ]
         }
       }

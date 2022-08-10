@@ -1,4 +1,6 @@
-﻿using Azure.Storage.Blobs.Specialized;
+﻿#pragma warning disable CS8600, CS8602
+
+using Azure.Storage.Blobs.Specialized;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SwiftTestingFrameworkAPI.Utils;
@@ -33,7 +35,8 @@ namespace SwiftTestingFrameworkAPI.Controllers
                 var response = pageBlobClient.Create(512);
                 if (response.GetRawResponse().Status == 201)
                 {
-                    return new TestResponse(Constants.ApiVersion, TestName, "Success", "Blob uploaded successfully.", string.Empty);
+                    string details = "Blob uploaded sucessfully at " + response.Value.LastModified.ToString();
+                    return new TestResponse(Constants.ApiVersion, TestName, "Success", details, string.Empty);
                 }
                 else
                 {

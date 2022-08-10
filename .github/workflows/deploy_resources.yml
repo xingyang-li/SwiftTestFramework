@@ -18,9 +18,9 @@ on:
     paths-ignore:
       - '.github/workflows/run_tests.yml'
       - 'src/SwiftTestingFramework/*'
-  # Triggers once every day
+  # Triggers every six hours
   schedule:
-    - cron:  '0 0 * * *'
+    - cron:  '0 */6 * * *'
 
   pull_request:
     branches: [ "main" ]
@@ -50,8 +50,8 @@ jobs:
     if: "!contains(github.event.commits[0].message, '[skip]')"
     needs: get-locations
     runs-on: ubuntu-latest
-    continue-on-error: true
     strategy:
+      fail-fast: false
       matrix: ${{ fromJson(needs.get-locations.outputs.matrix) }}
 
     steps:

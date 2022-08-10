@@ -1,6 +1,4 @@
-﻿#pragma warning disable CS8600, CS8602
-
-using Azure.Storage.Blobs.Specialized;
+﻿using Azure.Storage.Blobs.Specialized;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SwiftTestingFrameworkAPI.Utils;

@@ -1,3 +1,5 @@
+#pragma warning disable CS8600, CS8602
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
 using Newtonsoft.Json;

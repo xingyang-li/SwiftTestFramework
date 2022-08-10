@@ -81,8 +81,8 @@ namespace SwiftTestingFramework
         }
 
         [TestMethod]
-        [Description("Insert an entry inside a SQL Database table")]
-        public void TestDatabaseConnection()
+        [Description("Insert an entry inside a SQL Database table from Windows App")]
+        public void TestDatabaseConnectionWindows()
         {
 #if (westcentralus || northcentralus)
             Assert.Inconclusive();
@@ -92,6 +92,32 @@ namespace SwiftTestingFramework
                 string testPath = "/SqlQuery";
                 HttpRequestMessage message = new HttpRequestMessage();
                 HttpResponseMessage response = Helper.SendRequest(client, Constants.WindowsAppUrl + testPath, HttpMethod.Post);
+                response.EnsureSuccessStatusCode();
+                string stringBody = response.Content.ReadAsStringAsync().Result;
+                TestResponse testResponse = JsonConvert.DeserializeObject<TestResponse>(stringBody);
+                Assert.AreEqual(testResponse.TestResult, "Success", testResponse.ErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                //Replace with AntaresEventProvider or email send functionality
+                Logger.LogMessage(ex.ToString());
+                throw;
+            }
+
+        }
+
+        [TestMethod]
+        [Description("Insert an entry inside a SQL Database table from Linux App")]
+        public void TestDatabaseConnectionLinux()
+        {
+#if (westcentralus || northcentralus)
+            Assert.Inconclusive();
+#endif
+            try
+            {
+                string testPath = "/SqlQuery";
+                HttpRequestMessage message = new HttpRequestMessage();
+                HttpResponseMessage response = Helper.SendRequest(client, Constants.LinuxAppUrl + testPath, HttpMethod.Post);
                 response.EnsureSuccessStatusCode();
                 string stringBody = response.Content.ReadAsStringAsync().Result;
                 TestResponse testResponse = JsonConvert.DeserializeObject<TestResponse>(stringBody);

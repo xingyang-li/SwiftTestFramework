@@ -53,7 +53,7 @@
     "networkInterfaceName": "[concat(parameters('projectName'), '-nic')]",
     "networkSecurityGroupName": "[concat(parameters('projectName'), '-nsg')]",
     "networkSecurityGroupName2": "[concat(variables('vNetSubnetName'), '-nsg')]",
-    "storageAccountName": "[concat('stf', parameters('location'), 'stor')]",
+    "storageAccountName": "[concat(replace(parameters('projectName'), '-', ''), 'stor')]",
     "sqlServerName": "[concat(parameters('projectName'), '-sql')]",
     "storagePrivateEndpointConnName": "[concat(parameters('projectName'), '-stor-pe')]",
     "sqlPrivateEndpointConnName": "[concat(parameters('projectName'), '-sql-pe')]",

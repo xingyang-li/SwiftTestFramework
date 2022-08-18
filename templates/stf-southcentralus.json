@@ -446,6 +446,57 @@
       }
     },
     {
+      "type": "Microsoft.Network/privateEndpoints",
+      "apiVersion": "2020-11-01",
+      "name": "[variables('sqlPrivateEndpointConnName')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]"
+      ],
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "privateLinkServiceConnections": [
+          {
+            "name": "[variables('sqlPrivateEndpointConnName')]",
+            "properties": {
+              "privateLinkServiceId": "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]",
+              "groupIds": [
+                "sqlServer"
+              ],
+              "privateLinkServiceConnectionState": {
+                "status": "Approved",
+                "description": "Auto-Approved",
+                "actionsRequired": "None"
+              }
+            }
+          }
+        ],
+        "manualPrivateLinkServiceConnections": [],
+        "subnet": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNetName'), variables('vNetSubnetName'))]"
+        },
+        "customDnsConfigs": []
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2020-11-01",
+      "name": "[concat(variables('sqlPrivateEndpointConnName'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateEndpoints', variables('sqlPrivateEndpointConnName'))]"
+      ],
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "privatelink-database-windows-net",
+            "properties": {
+              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('databasePrivateZoneName'))]"
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "[variables('storageAccountName')]",
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2021-04-01",

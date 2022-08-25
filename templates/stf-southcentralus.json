@@ -444,7 +444,7 @@
           "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]"
         }
       }
-    }
+    },
     {
       "name": "[variables('storageAccountName')]",
       "type": "Microsoft.Storage/storageAccounts",

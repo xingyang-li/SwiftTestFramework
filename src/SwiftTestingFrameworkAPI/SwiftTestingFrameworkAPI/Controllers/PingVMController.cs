@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using SwiftTestingFrameworkAPI.Utils;
-using System.Web;
 
 namespace SwiftTestingFrameworkAPI.Controllers
 {
@@ -23,8 +22,7 @@ namespace SwiftTestingFrameworkAPI.Controllers
         public TestResponse GetInfo()
         {
             string testDetails = "Establishes a TCP connection with VNET virtual machine's private IP address.";
-            string url  = Request.GetDisplayUrl();
-            return new TestResponse(Constants.ApiVersion, TestName, string.Empty, testDetails, url);
+            return new TestResponse(Constants.ApiVersion, TestName, string.Empty, testDetails, string.Empty);
         }
 
         [HttpPost]

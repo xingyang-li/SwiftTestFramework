@@ -128,6 +128,7 @@ namespace SwiftTestingFramework
 
         }
 
+        /*
         [TestMethod]
         [Description("Insert an entry inside a SQL Database table from Windows App")]
         public void TestDatabaseConnectionWindows()
@@ -179,6 +180,7 @@ namespace SwiftTestingFramework
             }
 
         }
+        */
     }
 }
 

@@ -547,6 +547,10 @@
             {
               "name": "WEBSITE_VNET_ROUTE_ALL",
               "value": "1"
+            },
+            {
+              "name": "REGION",
+              "value": "[parameters('location')]"
             }
           ]
         },
@@ -612,6 +616,10 @@
             {
               "name": "WEBSITE_VNET_ROUTE_ALL",
               "value": "1"
+            },
+            {
+              "name": "REGION",
+              "value": "[parameters('location')]"
             }
           ]
         },

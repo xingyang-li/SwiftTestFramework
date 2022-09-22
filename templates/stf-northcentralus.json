@@ -347,7 +347,7 @@
     {
       "type": "Microsoft.Network/privateDnsZones",
       "apiVersion": "2018-09-01",
-      "name": "[parameters('sitePrivateZoneName')]",
+      "name": "[variables('sitePrivateZoneName')]",
       "location": "global",
       "properties": {
         "maxNumberOfRecordSets": 25000,
@@ -427,7 +427,7 @@
     {
       "type": "Microsoft.Network/privateEndpoints",
       "apiVersion": "2020-11-01",
-      "name": "[parameters('sitePrivateEndpointConnName')]",
+      "name": "[variables('sitePrivateEndpointConnName')]",
       "dependsOn": [
         "[resourceId('Microsoft.Web/sites', variables('privateAppName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]"
@@ -436,7 +436,7 @@
       "properties": {
         "privateLinkServiceConnections": [
           {
-            "name": "[parameters('sitePrivateEndpointConnName')]",
+            "name": "[variables('sitePrivateEndpointConnName')]",
             "properties": {
               "privateLinkServiceId": "[resourceId('Microsoft.Web/sites', variables('privateAppName'))]",
               "groupIds": [
@@ -498,7 +498,7 @@
       "tags": {
         "displayName": "[variables('storageAccountName')]"
       },
-      "location": "[resourceGroup().location]",
+      "location": "[parameters('location')]",
       "kind": "StorageV2",
       "properties": {
         "publicNetworkAccess": "Disabled",

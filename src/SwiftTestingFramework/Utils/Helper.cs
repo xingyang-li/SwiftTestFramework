@@ -11,7 +11,18 @@ namespace SwiftTestingFramework.Utils
         public static HttpResponseMessage SendRequest(HttpClient client, string url, HttpMethod method)
         {
             HttpRequestMessage request = new HttpRequestMessage(method, url);
-            return client.Send(request);
+            HttpResponseMessage response = null;
+
+            for (int i = 0; i<Constants.MaxRetries; ++i)
+            {
+                response = client.Send(request);
+                if (response.IsSuccessStatusCode)
+                {
+                    return response;
+                }
+            }
+
+            return response;
         }
     }
 }

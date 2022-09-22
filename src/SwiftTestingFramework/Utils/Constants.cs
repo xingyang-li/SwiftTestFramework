@@ -30,5 +30,7 @@ namespace SwiftTestingFramework.Utils
         public const string WindowsAppUrl = "https://stf-centraluseuap-winapp.azurewebsites.net";
         public const string LinuxAppUrl = "https://stf-centraluseuap-linuxapp.azurewebsites.net";
 #endif
+
+        public const int MaxRetries = 3;
     }
 }

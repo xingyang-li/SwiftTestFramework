@@ -44,7 +44,6 @@ namespace SwiftTestingFramework
             try
             {
                 string testPath = "/PingVM";
-                HttpRequestMessage message = new HttpRequestMessage();
                 HttpResponseMessage response = Helper.SendRequest(client, Constants.LinuxAppUrl + testPath, HttpMethod.Post);
                 response.EnsureSuccessStatusCode();
                 string stringBody = response.Content.ReadAsStringAsync().Result;
@@ -66,7 +65,6 @@ namespace SwiftTestingFramework
             try
             {
                 string testPath = "/StorageUpload";
-                HttpRequestMessage message = new HttpRequestMessage();
                 HttpResponseMessage response = Helper.SendRequest(client, Constants.WindowsAppUrl + testPath, HttpMethod.Post);
                 response.EnsureSuccessStatusCode();
                 string stringBody = response.Content.ReadAsStringAsync().Result;
@@ -89,7 +87,6 @@ namespace SwiftTestingFramework
             try
             {
                 string testPath = "/PrivateSite";
-                HttpRequestMessage message = new HttpRequestMessage();
                 HttpResponseMessage response = Helper.SendRequest(client, Constants.WindowsAppUrl + testPath, HttpMethod.Post);
                 response.EnsureSuccessStatusCode();
                 string stringBody = response.Content.ReadAsStringAsync().Result;
@@ -112,7 +109,6 @@ namespace SwiftTestingFramework
             try
             {
                 string testPath = "/PrivateScmSite";
-                HttpRequestMessage message = new HttpRequestMessage();
                 HttpResponseMessage response = Helper.SendRequest(client, Constants.WindowsAppUrl + testPath, HttpMethod.Post);
                 response.EnsureSuccessStatusCode();
                 string stringBody = response.Content.ReadAsStringAsync().Result;

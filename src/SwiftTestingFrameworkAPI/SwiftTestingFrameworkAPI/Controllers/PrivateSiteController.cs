@@ -51,7 +51,7 @@ namespace SwiftTestingFrameworkAPI.Controllers
                 }
                 else
                 {
-                    return new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, p.StdError);
+                    return new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, siteHostname);
                 }
             }
             catch (Exception ex)

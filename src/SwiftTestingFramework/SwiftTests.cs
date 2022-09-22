@@ -83,6 +83,52 @@ namespace SwiftTestingFramework
         }
 
         [TestMethod]
+        [Description("Send requests to site of app connected with Private Endpoint")]
+        public void TestSitePrivatelink()
+        {
+            try
+            {
+                string testPath = "/PrivateSite";
+                HttpRequestMessage message = new HttpRequestMessage();
+                HttpResponseMessage response = Helper.SendRequest(client, Constants.WindowsAppUrl + testPath, HttpMethod.Post);
+                response.EnsureSuccessStatusCode();
+                string stringBody = response.Content.ReadAsStringAsync().Result;
+                TestResponse testResponse = JsonConvert.DeserializeObject<TestResponse>(stringBody);
+                Assert.AreEqual(testResponse.TestResult, "Success", testResponse.ErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                //Replace with AntaresEventProvider or email send functionality
+                Logger.LogMessage(ex.ToString());
+                throw;
+            }
+
+        }
+
+        [TestMethod]
+        [Description("Send requests to the SCM site of app connected with Private Endpoint")]
+        public void TestScmSitePrivatelink()
+        {
+            try
+            {
+                string testPath = "/PrivateScmSite";
+                HttpRequestMessage message = new HttpRequestMessage();
+                HttpResponseMessage response = Helper.SendRequest(client, Constants.WindowsAppUrl + testPath, HttpMethod.Post);
+                response.EnsureSuccessStatusCode();
+                string stringBody = response.Content.ReadAsStringAsync().Result;
+                TestResponse testResponse = JsonConvert.DeserializeObject<TestResponse>(stringBody);
+                Assert.AreEqual(testResponse.TestResult, "Success", testResponse.ErrorMessage);
+            }
+            catch (Exception ex)
+            {
+                //Replace with AntaresEventProvider or email send functionality
+                Logger.LogMessage(ex.ToString());
+                throw;
+            }
+
+        }
+
+        [TestMethod]
         [Description("Insert an entry inside a SQL Database table from Windows App")]
         public void TestDatabaseConnectionWindows()
         {

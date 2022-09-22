@@ -723,7 +723,7 @@
               "value": "1"
             },
             {
-              "name": "REGION",
+              "name": "LOCATION",
               "value": "[parameters('location')]"
             }
           ]
@@ -785,7 +785,7 @@
               "value": "1"
             },
             {
-              "name": "REGION",
+              "name": "LOCATION",
               "value": "[parameters('location')]"
             }
           ]

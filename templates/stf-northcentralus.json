@@ -97,6 +97,19 @@
               "priority": 200,
               "direction": "Inbound"
             }
+          },
+          {
+            "name": "rdp_rule",
+            "properties": {
+              "priority": 1000,
+              "access": "Allow",
+              "direction": "Inbound",
+              "destinationPortRange": "3389",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*"
+            }
           }
         ]
       }

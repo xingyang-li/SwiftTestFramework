@@ -7,6 +7,11 @@
     <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.0.1" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Web.Hosting.Tracing">
+      <HintPath>..\..\..\wagit\AAPT-Antares-Websites\out\debug-amd64\Microsoft.Web.Hosting.Tracing\Microsoft.Web.Hosting.Tracing.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
     <None Update="host.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

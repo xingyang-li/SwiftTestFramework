@@ -3,6 +3,7 @@ using System.Net.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
+using Microsoft.Web.Hosting.Tracing;
 
 namespace Function
 {
@@ -11,7 +12,7 @@ namespace Function
         static readonly HttpClient client = new HttpClient();
 
         [FunctionName("STFWindowsRequest")]
-        public void Run([TimerTrigger("*/1 * * * *")]TimerInfo myTimer, ILogger log)
+        public void Run([TimerTrigger("*/5 * * * *")]TimerInfo myTimer, ILogger log)
         {
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
@@ -20,7 +21,7 @@ namespace Function
             string windowsAppUrl = String.Format(Helper.WindowsAppUrl, location);
 
             // Get the state of the site (empty, code deployed, or nonexistant)
-            HttpResponseMessage response = Helper.SendRequest(client, windowsAppUrl, HttpMethod.Get, log);
+            HttpResponseMessage response = Helper.SendRequest(client, windowsAppUrl, HttpMethod.Get);
            
             // Site will return custom 222 code when API is deployed, stop further requests otherwise
             if ((int)response.StatusCode == 222)
@@ -45,18 +46,17 @@ namespace Function
                 return;
             }
 
-            response = Helper.SendRequest(client, windowsAppUrl + "/PingVm", HttpMethod.Post, log);
+            response = Helper.SendRequest(client, windowsAppUrl + "/PingVm", HttpMethod.Post);
             log.LogInformation("PingVm: " + response.StatusCode.ToString());
 
-            response = Helper.SendRequest(client, windowsAppUrl + "/StorageUpload", HttpMethod.Post, log);
+            response = Helper.SendRequest(client, windowsAppUrl + "/StorageUpload", HttpMethod.Post);
             log.LogInformation("StorageUpload: " + response.StatusCode.ToString());
 
-            response = Helper.SendRequest(client, windowsAppUrl + "/PrivateSite", HttpMethod.Post, log);
+            response = Helper.SendRequest(client, windowsAppUrl + "/PrivateSite", HttpMethod.Post);
             log.LogInformation("PrivateSite: " + response.StatusCode.ToString());
 
-            response = Helper.SendRequest(client, windowsAppUrl + "/PrivateScmSite", HttpMethod.Post, log);
+            response = Helper.SendRequest(client, windowsAppUrl + "/PrivateScmSite", HttpMethod.Post);
             log.LogInformation("PrivateScmSite: " + response.StatusCode.ToString());
-
         }
 
     }
@@ -66,7 +66,7 @@ namespace Function
         static readonly HttpClient client = new HttpClient();
 
         [FunctionName("STFLinuxRequest")]
-        public void Run([TimerTrigger("*/1 * * * *")] TimerInfo myTimer, ILogger log)
+        public void Run([TimerTrigger("*/5 * * * *")] TimerInfo myTimer, ILogger log)
         {
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
@@ -75,7 +75,7 @@ namespace Function
             string linuxAppUrl = String.Format(Helper.LinuxAppUrl, location);
 
             // Get the state of the site (empty, code deployed, or nonexistant)
-            HttpResponseMessage response = Helper.SendRequest(client, linuxAppUrl, HttpMethod.Get, log);
+            HttpResponseMessage response = Helper.SendRequest(client, linuxAppUrl, HttpMethod.Get);
 
             // Site will return custom 222 code when API is deployed, stop further requests otherwise
             if ((int)response.StatusCode == 222)
@@ -100,16 +100,16 @@ namespace Function
                 return;
             }
 
-            response = Helper.SendRequest(client, linuxAppUrl + "/PingVm", HttpMethod.Post, log);
+            response = Helper.SendRequest(client, linuxAppUrl + "/PingVm", HttpMethod.Post);
             log.LogInformation("PingVm: " + response.StatusCode.ToString());
 
-            response = Helper.SendRequest(client, linuxAppUrl + "/StorageUpload", HttpMethod.Post, log);
+            response = Helper.SendRequest(client, linuxAppUrl + "/StorageUpload", HttpMethod.Post);
             log.LogInformation("StorageUpload: " + response.StatusCode.ToString());
 
-            response = Helper.SendRequest(client, linuxAppUrl + "/PrivateSite", HttpMethod.Post, log);
+            response = Helper.SendRequest(client, linuxAppUrl + "/PrivateSite", HttpMethod.Post);
             log.LogInformation("PrivateSite: " + response.StatusCode.ToString());
 
-            response = Helper.SendRequest(client, linuxAppUrl + "/PrivateScmSite", HttpMethod.Post, log);
+            response = Helper.SendRequest(client, linuxAppUrl + "/PrivateScmSite", HttpMethod.Post);
             log.LogInformation("PrivateScmSite: " + response.StatusCode.ToString());
 
         }

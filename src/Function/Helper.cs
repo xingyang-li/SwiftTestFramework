@@ -13,7 +13,7 @@ namespace Function
         public const string WindowsAppUrl = "https://stf-{0}-winapp.azurewebsites.net";
         public const string LinuxAppUrl = "https://stf-{0}-linuxapp.azurewebsites.net";
 
-        public static HttpResponseMessage SendRequest(HttpClient client, string url, HttpMethod method, ILogger log)
+        public static HttpResponseMessage SendRequest(HttpClient client, string url, HttpMethod method)
         {
             try
             {
@@ -23,7 +23,6 @@ namespace Function
             }
             catch (HttpRequestException ex)
             {
-                log.LogInformation(ex.Message);
                 return new HttpResponseMessage(ex.StatusCode ?? System.Net.HttpStatusCode.InternalServerError);
             }
 

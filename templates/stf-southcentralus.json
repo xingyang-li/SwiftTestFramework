@@ -603,10 +603,9 @@
         "displayName": "[variables('funcStorageAccountName')]"
       },
       "location": "[parameters('location')]",
-      "kind": "StorageV2",
+      "kind": "Storage",
       "sku": {
-        "name": "Premium_LRS",
-        "tier": "Premium"
+        "name": "Standard_LRS"
       }
     },
     {

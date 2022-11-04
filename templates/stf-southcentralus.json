@@ -57,7 +57,7 @@
     "networkSecurityGroupName2": "[concat(variables('vNetSubnetName'), '-nsg')]",
     "applicationInsightsName": "[variables('functionAppName')]",
     "storageAccountName": "[concat(replace(parameters('projectName'), '-', ''), 'stor')]",
-    "funcStorageAccountName": "[concat(replace(parameters('projectName'), '-', ''), 'storFunc')]",
+    "funcStorageAccountName": "[concat(replace(parameters('projectName'), '-', ''), 'fstor')]",
     "storagePrivateEndpointConnName": "[concat(parameters('projectName'), '-stor-pe')]",
     "sitePrivateEndpointConnName": "[concat(parameters('projectName'), '-site-pe')]",
     "blobPrivateZoneName": "privatelink.blob.core.windows.net",

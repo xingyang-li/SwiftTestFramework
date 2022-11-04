@@ -9,6 +9,7 @@ concurrency:
 env:
   DOTNET_VERSION: '6.0.x'
   API_SOLUTION_PATH: src/SwiftTestingFrameworkAPI/SwiftTestingFrameworkAPI.sln
+  FUNCTION_SOLUTION_PATH: src/Function/Function.sln
 
 # Controls when the workflow will run
 on:
@@ -83,17 +84,29 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Build with dotnet
+      - name: Build api with dotnet
         run: dotnet build ${{ env.API_SOLUTION_PATH }} --configuration Release
 
-      - name: dotnet publish
+      - name: dotnet publish api
         run: dotnet publish ${{ env.API_SOLUTION_PATH }} -c Release -o ${{env.DOTNET_ROOT}}/api
 
-      - name: Upload artifact for deployment job
+      - name: Upload api artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
           name: api-app
           path: ${{env.DOTNET_ROOT}}/api
+
+      - name: Build function app with dotnet
+        run: dotnet build ${{ env.FUNCTION_SOLUTION_PATH }} --configuration Release
+
+      - name: dotnet publish function app
+        run: dotnet publish ${{ env.FUNCTION_SOLUTION_PATH }} -c Release -o ${{env.DOTNET_ROOT}}/function
+
+      - name: Upload function app artifact for deployment job
+        uses: actions/upload-artifact@v3
+        with:
+          name: function-app
+          path: ${{env.DOTNET_ROOT}}/function
 
 
   deploy:
@@ -114,11 +127,17 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v1
 
-    - name: Download artifact from build job
+    - name: Download api artifact from build job
       uses: actions/download-artifact@v3
       with:
         name: api-app
         path: api-app
+
+    - name: Download function app artifact from build job
+      uses: actions/download-artifact@v3
+      with:
+        name: function-app
+        path: function-app
 
     - name: Run Azure PowerShell script
       uses: azure/powershell@v1
@@ -127,8 +146,10 @@ jobs:
         inlineScript: |
           $publish_profile_winapp=Get-AzWebAppPublishingProfile -ResourceGroupName stf-${{ matrix.location }} -Name "stf-${{ matrix.location }}-winapp"
           $publish_profile_linuxapp=Get-AzWebAppPublishingProfile -ResourceGroupName stf-${{ matrix.location }} -Name "stf-${{ matrix.location }}-linuxapp"
+          $publish_profile_functionapp=Get-AzWebAppPublishingProfile -ResourceGroupName stf-${{ matrix.location }} -Name "stf-${{ matrix.location }}-functionapp"
           echo ::set-output name=publish_profile_winapp::$( $publish_profile_winapp)
           echo ::set-output name=publish_profile_linuxapp::$( $publish_profile_linuxapp)
+          echo ::set-output name=publish_profile_functionapp::$( $publish_profile_functionapp)
         azPSVersion: "latest"
 
     - name: Deploy to Azure Windows Web App
@@ -146,3 +167,11 @@ jobs:
         app-name: stf-${{ matrix.location }}-linuxapp
         publish-profile: ${{ steps.getPublishProfile.outputs.publish_profile_linuxapp }}
         package: api-app
+
+    - name: Deploy to Azure Functions App
+      id: deploy-to-functionapp
+      uses: Azure/functions-action@v1
+      with:
+        app-name: stf-${{ matrix.location }}-functionapp
+        publish-profile: ${{ steps.getPublishProfile.outputs.$publish_profile_functionapp }}
+        package: function-app

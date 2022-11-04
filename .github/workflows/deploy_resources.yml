@@ -173,5 +173,5 @@ jobs:
       uses: Azure/functions-action@v1
       with:
         app-name: stf-${{ matrix.location }}-functionapp
-        publish-profile: ${{ steps.getPublishProfile.outputs.$publish_profile_functionapp }}
+        publish-profile: ${{ steps.getPublishProfile.outputs.publish_profile_functionapp }}
         package: function-app

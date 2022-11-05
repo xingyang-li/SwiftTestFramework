@@ -3,7 +3,6 @@ using System.Net.Http;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
-using Microsoft.Web.Hosting.Tracing;
 
 namespace Function
 {
@@ -16,8 +15,7 @@ namespace Function
         {
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
-            //string location = Environment.GetEnvironmentVariable("LOCATION");
-            string location = "westcentralus";
+            string location = Environment.GetEnvironmentVariable("LOCATION");
             string windowsAppUrl = String.Format(Helper.WindowsAppUrl, location);
 
             // Get the state of the site (empty, code deployed, or nonexistant)
@@ -70,8 +68,7 @@ namespace Function
         {
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
-            //string location = Environment.GetEnvironmentVariable("LOCATION");
-            string location = "westcentralus";
+            string location = Environment.GetEnvironmentVariable("LOCATION");
             string linuxAppUrl = String.Format(Helper.LinuxAppUrl, location);
 
             // Get the state of the site (empty, code deployed, or nonexistant)

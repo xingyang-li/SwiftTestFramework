@@ -852,6 +852,10 @@
             {
               "name": "FUNCTIONS_WORKER_RUNTIME",
               "value": "dotnet"
+            },
+            {
+              "name": "LOCATION",
+              "value": "[parameters('location')]"
             }
           ]
         }

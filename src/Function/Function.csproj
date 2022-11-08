@@ -1,14 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <AzureFunctionsVersion>v4</AzureFunctionsVersion>
+    <TargetFramework>net48</TargetFramework>
+    <AzureFunctionsVersion>v1</AzureFunctionsVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="4.0.1" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.24" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Web.Hosting.Tracing">
-      <HintPath>..\..\..\wagit\AAPT-Antares-Websites\out\debug-amd64\Microsoft.Web.Hosting.Tracing\Microsoft.Web.Hosting.Tracing.dll</HintPath>
+      <HintPath>Microsoft.Web.Hosting.Tracing.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

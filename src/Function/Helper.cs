@@ -18,12 +18,12 @@ namespace Function
             try
             {
                 HttpRequestMessage request = new HttpRequestMessage(method, url);
-                HttpResponseMessage response = client.Send(request);
+                HttpResponseMessage response = client.SendAsync(request).Result;
                 return response;
             }
-            catch (HttpRequestException ex)
+            catch
             {
-                return new HttpResponseMessage(ex.StatusCode ?? System.Net.HttpStatusCode.InternalServerError);
+                return new HttpResponseMessage(System.Net.HttpStatusCode.InternalServerError);
             }
 
         }

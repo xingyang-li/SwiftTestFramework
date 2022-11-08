@@ -1,8 +1,10 @@
 using System;
 using System.Net.Http;
+using System.Runtime.Remoting.Messaging;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
+using Microsoft.Web.Hosting.Tracing;
 
 namespace Function
 {
@@ -11,7 +13,7 @@ namespace Function
         static readonly HttpClient client = new HttpClient();
 
         [FunctionName("STFWindowsRequest")]
-        public void Run([TimerTrigger("*/5 * * * *")]TimerInfo myTimer, ILogger log)
+        public static void Run([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log)
         {
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
@@ -20,7 +22,7 @@ namespace Function
 
             // Get the state of the site (empty, code deployed, or nonexistant)
             HttpResponseMessage response = Helper.SendRequest(client, windowsAppUrl, HttpMethod.Get);
-           
+
             // Site will return custom 222 code when API is deployed, stop further requests otherwise
             if ((int)response.StatusCode == 222)
             {
@@ -41,6 +43,7 @@ namespace Function
                     log.LogError("Server Error");
                 }
 
+                AntaresEventProvider.EventWriteSwiftGenericLog(String.Format("Swift Test Framework site unavailable: {0}", windowsAppUrl));
                 return;
             }
 
@@ -55,6 +58,8 @@ namespace Function
 
             response = Helper.SendRequest(client, windowsAppUrl + "/PrivateScmSite", HttpMethod.Post);
             log.LogInformation("PrivateScmSite: " + response.StatusCode.ToString());
+
+            AntaresEventProvider.EventWriteSwiftGenericLog(String.Format("Swift Test Framework site healthy: {0}", windowsAppUrl));
         }
 
     }
@@ -64,7 +69,7 @@ namespace Function
         static readonly HttpClient client = new HttpClient();
 
         [FunctionName("STFLinuxRequest")]
-        public void Run([TimerTrigger("*/5 * * * *")] TimerInfo myTimer, ILogger log)
+        public static void Run([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer, ILogger log)
         {
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
@@ -94,6 +99,7 @@ namespace Function
                     log.LogError("Server Error");
                 }
 
+                AntaresEventProvider.EventWriteSwiftGenericLog(String.Format("Swift Test Framework site unavailable: {0}", linuxAppUrl));
                 return;
             }
 
@@ -109,6 +115,7 @@ namespace Function
             response = Helper.SendRequest(client, linuxAppUrl + "/PrivateScmSite", HttpMethod.Post);
             log.LogInformation("PrivateScmSite: " + response.StatusCode.ToString());
 
+            AntaresEventProvider.EventWriteSwiftGenericLog(String.Format("Swift Test Framework site healthy: {0}", linuxAppUrl));
         }
 
     }

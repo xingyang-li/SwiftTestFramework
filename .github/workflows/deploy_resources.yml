@@ -96,17 +96,24 @@ jobs:
           name: api-app
           path: ${{env.DOTNET_ROOT}}/api
 
-      - name: Build function app with dotnet
-        run: dotnet build ${{ env.FUNCTION_SOLUTION_PATH }} --configuration Release
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
 
-      - name: dotnet publish function app
-        run: dotnet publish ${{ env.FUNCTION_SOLUTION_PATH }} -c Release -o ${{env.DOTNET_ROOT}}/function
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v1.0.5
 
-      - name: Upload function app artifact for deployment job
+      - name: Restore Packages
+        run: nuget restore ${{ env.FUNCTION_SOLUTION_PATH }}
+
+      - name: Build Solution
+        run: |
+          msbuild.exe ${{ env.FUNCTION_SOLUTION_PATH }} /p:platform="Any CPU" /p:configuration="Release"
+        
+      - name: Upload function app artifact
         uses: actions/upload-artifact@v3
         with:
           name: function-app
-          path: ${{env.DOTNET_ROOT}}/function
+          path: "src/Function/bin/Debug/Release/net48"
 
 
   deploy:

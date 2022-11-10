@@ -317,3 +317,5 @@ msbuild.sum
 
 #override file for test stamp selection
 **/runsettingsOverride.config
+
+!Microsoft.Web.Hosting.Tracing.dll

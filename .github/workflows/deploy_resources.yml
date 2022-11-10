@@ -16,12 +16,6 @@ on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
     branches: [ "main" ]
-    paths-ignore:
-      - '.github/workflows/run_tests.yml'
-      - 'src/SwiftTestingFramework/*'
-  # Triggers every six hours
-  schedule:
-    - cron:  '0 */6 * * *'
 
   pull_request:
     branches: [ "main" ]
@@ -72,7 +66,7 @@ jobs:
           chmod +x $GITHUB_WORKSPACE/deploy.sh
           $GITHUB_WORKSPACE/deploy.sh stf-${{ matrix.location }} ${{ matrix.location }}
 
-  build:
+  build-api-app:
     needs: get-locations
     runs-on: ubuntu-latest
 
@@ -123,7 +117,7 @@ jobs:
           path: "src/Function/bin/Release/net48/"
 
   deploy:
-    needs: [build, create-resources, get-locations]
+    needs: [build-api-app, build-function-app, create-resources, get-locations]
     runs-on: ubuntu-latest
     if: ${{ !failure()  && !cancelled()}}
     continue-on-error: true

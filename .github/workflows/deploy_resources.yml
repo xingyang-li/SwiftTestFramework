@@ -96,6 +96,13 @@ jobs:
           name: api-app
           path: ${{env.DOTNET_ROOT}}/api
 
+  build function app:
+    needs: get-locations
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
       - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1
 
@@ -114,7 +121,6 @@ jobs:
         with:
           name: function-app
           path: "src/Function/bin/Debug/Release/net48"
-
 
   deploy:
     needs: [build, create-resources, get-locations]

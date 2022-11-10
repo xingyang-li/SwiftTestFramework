@@ -96,7 +96,7 @@ jobs:
           name: api-app
           path: ${{env.DOTNET_ROOT}}/api
 
-  build function app:
+  build-function-app:
     needs: get-locations
     runs-on: windows-latest
 

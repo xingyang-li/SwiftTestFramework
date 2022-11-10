@@ -2,9 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web.Http;
 
 namespace Function
 {
@@ -21,9 +23,33 @@ namespace Function
                 HttpResponseMessage response = client.SendAsync(request).Result;
                 return response;
             }
-            catch
+            catch (AggregateException ae)
             {
-                return new HttpResponseMessage(System.Net.HttpStatusCode.InternalServerError);
+                foreach (var ex in ae.InnerExceptions)
+                {
+                    if (ex.GetType() == typeof(HttpRequestException))
+                    {
+                        HttpRequestException httpEx = (HttpRequestException)ex;
+                        if (httpEx.InnerException.GetType() == typeof(WebException))
+                        {
+                            WebException webEx = (WebException)httpEx.InnerException;
+                            if (webEx.Status == WebExceptionStatus.NameResolutionFailure)
+                            {
+                                return new HttpResponseMessage(System.Net.HttpStatusCode.NotFound);
+                            }
+                        }
+                    }
+                }
+
+                HttpResponseMessage response = new HttpResponseMessage(System.Net.HttpStatusCode.InternalServerError);
+                response.Content = new StringContent(ae.Message);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                HttpResponseMessage response = new HttpResponseMessage(System.Net.HttpStatusCode.InternalServerError);
+                response.Content = new StringContent(ex.Message);
+                return response;
             }
 
         }

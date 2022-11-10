@@ -37,13 +37,14 @@ namespace Function
                 else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     log.LogInformation("Site not found");
+                    AntaresEventProvider.EventWriteSwiftWarningWithVnetId(String.Format("Swift Test Framework site name resolution failed: {0}", windowsAppUrl), string.Empty);
                 }
                 else if ((int)response.StatusCode >= 500)
                 {
                     log.LogError("Server Error");
+                    AntaresEventProvider.EventWriteSwiftWarningWithVnetId(String.Format("Swift Test Framework site internal server error: {0}", windowsAppUrl), string.Empty);
                 }
 
-                AntaresEventProvider.EventWriteSwiftGenericLog(String.Format("Swift Test Framework site unavailable: {0}", windowsAppUrl));
                 return;
             }
 
@@ -93,13 +94,15 @@ namespace Function
                 else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     log.LogInformation("Site not found");
+                    AntaresEventProvider.EventWriteSwiftWarningWithVnetId(String.Format("Swift Test Framework site name resolution failed: {0}", linuxAppUrl), string.Empty);
+
                 }
                 else if ((int)response.StatusCode >= 500)
                 {
                     log.LogError("Server Error");
+                    AntaresEventProvider.EventWriteSwiftWarningWithVnetId(String.Format("Swift Test Framework site internal server error: {0}", linuxAppUrl), string.Empty);
                 }
 
-                AntaresEventProvider.EventWriteSwiftGenericLog(String.Format("Swift Test Framework site unavailable: {0}", linuxAppUrl));
                 return;
             }
 

@@ -120,7 +120,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: function-app
-          path: "bin/Release/net48/"
+          path: "src\Function\bin\Release\net48\"
 
   deploy:
     needs: [build, create-resources, get-locations]

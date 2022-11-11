@@ -1,7 +1,6 @@
 # SwiftTestingFramework
 
 [![Azure CI](https://github.com/xingyang-li/SwiftTestFramework/actions/workflows/deploy_resources.yml/badge.svg)](https://github.com/xingyang-li/SwiftTestFramework/actions/workflows/deploy_resources.yml)
-[![Testing](https://github.com/xingyang-li/SwiftTestingFramework/actions/workflows/run_tests.yml/badge.svg)](https://github.com/xingyang-li/SwiftTestingFramework/actions/workflows/run_tests.yml)
 
 <!-- GETTING STARTED -->
 ## Getting Started
@@ -24,7 +23,7 @@ To introduce changes to the framework and set up local testing, please follow th
 
 There is a resource group deployed to every region defined in `location_matrix.json`. To extend this framework to another region, add the desired region name to this file. 
 
-The ARM templates that define the resources are located in the `templates` folder. Each template file defines the resources in the region in which the file is named after. The templates are very similar to each other and differences are attributed to unique resource constraints found in each region. A new template file is required if another region is added to the framework.
+The ARM templates that define the resources are located in the `templates` folder. Each template file defines the resources in the region in which the file is named after. The templates are very similar to each other and differences are attributed to unique resource constraints found in each region. A new template file is required if another region is added to the framework. To add resources to a region, add the corresponding ARM template resource to the json file for that region.
 
 To locally test ARM template changes, you can deploy resources to Azure using Azure Powershell.
 

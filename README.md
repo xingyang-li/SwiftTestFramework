@@ -6,8 +6,8 @@
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This project is intended to provide testing coverage for Swift/Vnet features through the use of canary web apps across multiple regions.
-To introduce changes to the framework and set up local testing, please follow the below requirements.
+This project is intended to provide testing coverage for Swift/Vnet features through the use of canary web apps hosted on Azure across multiple regions.
+To introduce changes to the framework and set up local testing, please follow the below instructions.
 
 ### Prerequisites
 

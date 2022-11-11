@@ -30,9 +30,9 @@ To locally test ARM template changes, you can deploy resources to Azure using Az
 
 1. Open Powershell and login to Azure with: `az login`
 2. Set your subscription to the 'WAWS Swift Test': `Az-SetContext {WAWS Swift Test Subscription ID}`
-3. Copy over ARM template JSON to the `deploy-stf.json` file.
-4. Run: `.\deploy.ps1 -projectName deploy-stf -location {desired location}`
-5. Navigate to the resource group "deploy-stf" in the desired location in the Azure portal to verify that the deployment succeeded.
+3. Copy over ARM template JSON to `templates\stf-test.json` file.
+4. Run: `.\deploy.ps1 -projectName stf-test -location {desired location}`
+5. Navigate to the resource group "stf-test" in the desired location in the Azure portal to verify that the deployment succeeded.
 
 
 ### Adding API Changes

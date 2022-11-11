@@ -47,7 +47,6 @@ Once you are ready to test, open the project solution file with Visual Studio. Y
 
 If you have Azure SDKs and tools downloaded for Visual Studio, you should be able to publish your code to a web app that is deployed on Azure: [https://learn.microsoft.com/en-us/visualstudio/deployment/quickstart-deploy-aspnet-web-app?view=vs-2022&tabs=azure](https://learn.microsoft.com/en-us/visualstudio/deployment/quickstart-deploy-aspnet-web-app?view=vs-2022&tabs=azure)
 
-
 ### Function App Changes
 
 Each resource group also contains an Azure Function app that requests the endpoints on the API apps periodically with a timer trigger. The code for this is defined under `src\Function`. If you have added endpoints to the API app, you will need to edit the function app to request those endpoints.
@@ -55,6 +54,19 @@ Each resource group also contains an Azure Function app that requests the endpoi
 This Function app also has the ability to write ETW events using AntaresEventProvider.
 
 Like the API app, you will be able to run the Function project locally and publish the app to Azure using Visual Studio.
+
+To run the Function app locally: You will need to add a file called `local.settings.json` to the `src\Function\` directory to set up local storage for the function app.
+
+The file contents should contain the below:
+```
+{
+    "IsEncrypted": false,
+    "Values": {
+        "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+        "FUNCTIONS_WORKER_RUNTIME": "dotnet"
+    }
+}
+```
 
 
 ### Workflow Changes

@@ -71,7 +71,12 @@ The file contents should contain the below:
 
 ### Workflow Changes
 
-Under `.github\workflows`, there are yaml files that define the instructions for some GitHub Actions workflows set up for this repo that build app code and deploy resource to Azure. Workflows are automations that allow for hands-off deployment of this framework.
+Under `.github\workflows`, there are yaml files that define the instructions for GitHub Actions workflows set up for this repo that build app code and deploy resource to Azure. You can view these workflows under the `Actions` tab on GitHub webpage for the repo. Workflows are automations that allow for hands-off deployment of this framework, and editing these files will change how this framework is deployed.
+
+
+### Final Steps
+
+Once you are confident in your changes, merge the Pull Request with your changes to the main branch. This should automatically trigger the deployment, and you will see your changes in Azure soon. If the GitHub Actions job fails, you can also manually run the job if you navigate under the `Actions` tab on GitHub.
 
 
 

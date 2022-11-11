@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Runtime.Remoting.Messaging;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
 using Microsoft.Web.Hosting.Tracing;
+using Newtonsoft.Json;
 
 namespace Function
 {
@@ -19,6 +22,7 @@ namespace Function
 
             string location = Environment.GetEnvironmentVariable("LOCATION");
             string windowsAppUrl = String.Format(Helper.WindowsAppUrl, location);
+            Uri windowsAppUri = new Uri(windowsAppUrl);
 
             // Get the state of the site (empty, code deployed, or nonexistant)
             HttpResponseMessage response = Helper.SendRequest(client, windowsAppUrl, HttpMethod.Get);
@@ -48,19 +52,31 @@ namespace Function
                 return;
             }
 
+            TestSuiteResponse testSuiteResponse = new TestSuiteResponse();
+            testSuiteResponse.Timestamp = DateTime.Now.ToString();
+            testSuiteResponse.SiteName = windowsAppUri.Host.Split('.')[0];
+            testSuiteResponse.Endpoints = new Dictionary<string, HttpStatusCode>();
+
             response = Helper.SendRequest(client, windowsAppUrl + "/PingVm", HttpMethod.Post);
+            testSuiteResponse.Endpoints.Add("PingVm", response.StatusCode);
             log.LogInformation("PingVm: " + response.StatusCode.ToString());
 
             response = Helper.SendRequest(client, windowsAppUrl + "/StorageUpload", HttpMethod.Post);
+            testSuiteResponse.Endpoints.Add("StorageUpload", response.StatusCode);
             log.LogInformation("StorageUpload: " + response.StatusCode.ToString());
 
             response = Helper.SendRequest(client, windowsAppUrl + "/PrivateSite", HttpMethod.Post);
+            testSuiteResponse.Endpoints.Add("PrivateSite", response.StatusCode);
             log.LogInformation("PrivateSite: " + response.StatusCode.ToString());
 
             response = Helper.SendRequest(client, windowsAppUrl + "/PrivateScmSite", HttpMethod.Post);
+            testSuiteResponse.Endpoints.Add("PrivateScmSite", response.StatusCode);
             log.LogInformation("PrivateScmSite: " + response.StatusCode.ToString());
 
-            AntaresEventProvider.EventWriteSwiftGenericLog(String.Format("Swift Test Framework site healthy: {0}", windowsAppUrl));
+            string jsonString = JsonConvert.SerializeObject(testSuiteResponse, Formatting.Indented);
+            log.LogInformation(jsonString);
+
+            AntaresEventProvider.EventWriteSwiftGenericLog(jsonString);
         }
 
     }
@@ -76,6 +92,7 @@ namespace Function
 
             string location = Environment.GetEnvironmentVariable("LOCATION");
             string linuxAppUrl = String.Format(Helper.LinuxAppUrl, location);
+            Uri linuxAppUri = new Uri(linuxAppUrl);
 
             // Get the state of the site (empty, code deployed, or nonexistant)
             HttpResponseMessage response = Helper.SendRequest(client, linuxAppUrl, HttpMethod.Get);
@@ -106,19 +123,31 @@ namespace Function
                 return;
             }
 
+            TestSuiteResponse testSuiteResponse = new TestSuiteResponse();
+            testSuiteResponse.Timestamp = DateTime.Now.ToString();
+            testSuiteResponse.SiteName = linuxAppUri.Host.Split('.')[0];
+            testSuiteResponse.Endpoints = new Dictionary<string, HttpStatusCode>();
+
             response = Helper.SendRequest(client, linuxAppUrl + "/PingVm", HttpMethod.Post);
+            testSuiteResponse.Endpoints.Add("PingVm", response.StatusCode);
             log.LogInformation("PingVm: " + response.StatusCode.ToString());
 
             response = Helper.SendRequest(client, linuxAppUrl + "/StorageUpload", HttpMethod.Post);
+            testSuiteResponse.Endpoints.Add("StorageUpload", response.StatusCode);
             log.LogInformation("StorageUpload: " + response.StatusCode.ToString());
 
             response = Helper.SendRequest(client, linuxAppUrl + "/PrivateSite", HttpMethod.Post);
+            testSuiteResponse.Endpoints.Add("PrivateSite", response.StatusCode);
             log.LogInformation("PrivateSite: " + response.StatusCode.ToString());
 
             response = Helper.SendRequest(client, linuxAppUrl + "/PrivateScmSite", HttpMethod.Post);
+            testSuiteResponse.Endpoints.Add("PrivateScmSite", response.StatusCode);
             log.LogInformation("PrivateScmSite: " + response.StatusCode.ToString());
 
-            AntaresEventProvider.EventWriteSwiftGenericLog(String.Format("Swift Test Framework site healthy: {0}", linuxAppUrl));
+            string jsonString = JsonConvert.SerializeObject(testSuiteResponse, Formatting.Indented);
+            log.LogInformation(jsonString);
+
+            AntaresEventProvider.EventWriteSwiftGenericLog(jsonString);
         }
 
     }

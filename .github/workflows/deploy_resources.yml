@@ -86,6 +86,7 @@ jobs:
         with:
           name: api-app
           path: ${{env.DOTNET_ROOT}}/api
+          retention-days: 1
 
   build-function-app:
     needs: get-locations
@@ -112,6 +113,7 @@ jobs:
         with:
           name: function-app
           path: "src/Function/bin/Release/net48/"
+          retention-days: 1
 
   deploy:
     needs: [build-api-app, build-function-app, create-resources, get-locations]

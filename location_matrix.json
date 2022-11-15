@@ -3,8 +3,10 @@
     "southcentralus",
     "westcentralus",
     "northcentralus",
-    "eastus2euap",
     "centraluseuap",
-    "westeurope"
+    "westeurope",
+    "westus2",
+    "northeurope",
+    "eastus"
   ]
 }

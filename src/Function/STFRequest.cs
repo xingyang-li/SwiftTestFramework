@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.Remoting.Messaging;
+using System.Security.Authentication.ExtendedProtection;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Host;
 using Microsoft.Extensions.Logging;
@@ -23,6 +24,8 @@ namespace Function
             string location = Environment.GetEnvironmentVariable("LOCATION");
             string windowsAppUrl = String.Format(Helper.WindowsAppUrl, location);
             Uri windowsAppUri = new Uri(windowsAppUrl);
+            string timestamp = DateTime.Now.ToString();
+            string siteName = windowsAppUri.Host.Split('.')[0];
 
             // Get the state of the site (empty, code deployed, or nonexistant)
             HttpResponseMessage response = Helper.SendRequest(client, windowsAppUrl, HttpMethod.Get);
@@ -40,22 +43,27 @@ namespace Function
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    log.LogInformation("Site not found");
-                    AntaresEventProvider.EventWriteSwiftWarningWithVnetId(String.Format("Swift Test Framework site name resolution failed: {0}", windowsAppUrl), string.Empty);
+                    log.LogError("Site not found");
+                    string responseContent = response.Content.ReadAsStringAsync().Result;
+                    ErrorResponse errorResponse = new ErrorResponse(Helper.ServiceName, timestamp, siteName, responseContent);
+                    string responseBody = JsonConvert.SerializeObject(errorResponse, Formatting.Indented);
+                    AntaresEventProvider.EventWriteSwiftWarningWithVnetId(responseBody, string.Empty);
+                    log.LogInformation(responseBody);
                 }
                 else if ((int)response.StatusCode >= 500)
                 {
                     log.LogError("Server Error");
-                    AntaresEventProvider.EventWriteSwiftWarningWithVnetId(String.Format("Swift Test Framework site internal server error: {0}", windowsAppUrl), string.Empty);
+                    string responseContent = response.Content.ReadAsStringAsync().Result;
+                    ErrorResponse errorResponse = new ErrorResponse(Helper.ServiceName, timestamp, siteName, responseContent);
+                    string responseBody = JsonConvert.SerializeObject(errorResponse, Formatting.Indented);
+                    AntaresEventProvider.EventWriteSwiftWarningWithVnetId(responseBody, string.Empty);
+                    log.LogInformation(responseBody);
                 }
 
                 return;
             }
 
-            TestSuiteResponse testSuiteResponse = new TestSuiteResponse();
-            testSuiteResponse.Timestamp = DateTime.Now.ToString();
-            testSuiteResponse.SiteName = windowsAppUri.Host.Split('.')[0];
-            testSuiteResponse.Endpoints = new Dictionary<string, HttpStatusCode>();
+            TestSuiteResponse testSuiteResponse = new TestSuiteResponse(Helper.ServiceName, timestamp, siteName);
 
             response = Helper.SendRequest(client, windowsAppUrl + "/PingVm", HttpMethod.Post);
             testSuiteResponse.Endpoints.Add("PingVm", response.StatusCode);
@@ -93,6 +101,8 @@ namespace Function
             string location = Environment.GetEnvironmentVariable("LOCATION");
             string linuxAppUrl = String.Format(Helper.LinuxAppUrl, location);
             Uri linuxAppUri = new Uri(linuxAppUrl);
+            string timestamp = DateTime.Now.ToString();
+            string siteName = linuxAppUri.Host.Split('.')[0];
 
             // Get the state of the site (empty, code deployed, or nonexistant)
             HttpResponseMessage response = Helper.SendRequest(client, linuxAppUrl, HttpMethod.Get);
@@ -111,22 +121,27 @@ namespace Function
                 else if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     log.LogInformation("Site not found");
-                    AntaresEventProvider.EventWriteSwiftWarningWithVnetId(String.Format("Swift Test Framework site name resolution failed: {0}", linuxAppUrl), string.Empty);
+                    string responseContent = response.Content.ReadAsStringAsync().Result;
+                    ErrorResponse errorResponse = new ErrorResponse(Helper.ServiceName, timestamp, siteName, responseContent);
+                    string responseBody = JsonConvert.SerializeObject(errorResponse, Formatting.Indented);
+                    AntaresEventProvider.EventWriteSwiftWarningWithVnetId(responseBody, string.Empty);
+                    log.LogInformation(responseBody);
 
                 }
                 else if ((int)response.StatusCode >= 500)
                 {
                     log.LogError("Server Error");
-                    AntaresEventProvider.EventWriteSwiftWarningWithVnetId(String.Format("Swift Test Framework site internal server error: {0}", linuxAppUrl), string.Empty);
+                    string responseContent = response.Content.ReadAsStringAsync().Result;
+                    ErrorResponse errorResponse = new ErrorResponse(Helper.ServiceName, timestamp, siteName, responseContent);
+                    string responseBody = JsonConvert.SerializeObject(errorResponse, Formatting.Indented);
+                    AntaresEventProvider.EventWriteSwiftWarningWithVnetId(responseBody, string.Empty);
+                    log.LogInformation(responseBody);
                 }
 
                 return;
             }
 
-            TestSuiteResponse testSuiteResponse = new TestSuiteResponse();
-            testSuiteResponse.Timestamp = DateTime.Now.ToString();
-            testSuiteResponse.SiteName = linuxAppUri.Host.Split('.')[0];
-            testSuiteResponse.Endpoints = new Dictionary<string, HttpStatusCode>();
+            TestSuiteResponse testSuiteResponse = new TestSuiteResponse(Helper.ServiceName, timestamp, siteName);
 
             response = Helper.SendRequest(client, linuxAppUrl + "/PingVm", HttpMethod.Post);
             testSuiteResponse.Endpoints.Add("PingVm", response.StatusCode);

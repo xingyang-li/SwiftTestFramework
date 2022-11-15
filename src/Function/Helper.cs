@@ -14,6 +14,7 @@ namespace Function
     {
         public const string WindowsAppUrl = "https://stf-{0}-winapp.azurewebsites.net";
         public const string LinuxAppUrl = "https://stf-{0}-linuxapp.azurewebsites.net";
+        public const string ServiceName = "Swift Test Framework";
 
         public static HttpResponseMessage SendRequest(HttpClient client, string url, HttpMethod method)
         {
@@ -35,7 +36,9 @@ namespace Function
                             WebException webEx = (WebException)httpEx.InnerException;
                             if (webEx.Status == WebExceptionStatus.NameResolutionFailure)
                             {
-                                return new HttpResponseMessage(System.Net.HttpStatusCode.NotFound);
+                                HttpResponseMessage responseMessage = new HttpResponseMessage(System.Net.HttpStatusCode.NotFound);
+                                responseMessage.Content = new StringContent(webEx.Message);
+                                return responseMessage;
                             }
                         }
                     }

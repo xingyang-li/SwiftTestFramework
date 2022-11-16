@@ -35,19 +35,7 @@ jobs:
         content="${content//'%'/'%25'}"
         content="${content//$'\n'/}"
         content="${content//$'\r'/'%0D'}"
-          # end of optional handling for multi line json
-        # echo "::set-output name=matrix::$content"
         echo "matrix=$content" >> $GITHUB_OUTPUT
-
-  print-locations:
-    runs-on: ubuntu-latest
-    needs: get-locations
-    steps:
-    - uses: actions/checkout@v3
-    - name: print-matrix
-      id: print-matrix
-      run: |
-        echo ${{ needs.get-locations.outputs.matrix }}
  
   create-resources:
     if: "!contains(github.event.commits[0].message, '[skip]')"
@@ -164,9 +152,9 @@ jobs:
           $publish_profile_winapp=Get-AzWebAppPublishingProfile -ResourceGroupName stf-${{ matrix.location }} -Name "stf-${{ matrix.location }}-winapp"
           $publish_profile_linuxapp=Get-AzWebAppPublishingProfile -ResourceGroupName stf-${{ matrix.location }} -Name "stf-${{ matrix.location }}-linuxapp"
           $publish_profile_functionapp=Get-AzWebAppPublishingProfile -ResourceGroupName stf-${{ matrix.location }} -Name "stf-${{ matrix.location }}-functionapp"
-          echo ::set-output name=publish_profile_winapp::$( $publish_profile_winapp)
-          echo ::set-output name=publish_profile_linuxapp::$( $publish_profile_linuxapp)
-          echo ::set-output name=publish_profile_functionapp::$( $publish_profile_functionapp)
+          echo "publish_profile_winapp=$($publish_profile_winapp)" >> $GITHUB_OUTPUT
+          echo "publish_profile_linuxapp=$($publish_profile_linuxapp)" >> $GITHUB_OUTPUT
+          echo "publish_profile_functionapp=$( $publish_profile_functionapp)" >> $GITHUB_OUTPUT
         azPSVersion: "latest"
 
     - name: Deploy to Azure Windows Web App

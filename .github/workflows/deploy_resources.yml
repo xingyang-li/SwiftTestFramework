@@ -36,7 +36,7 @@ jobs:
         content="${content//$'\n'/'%0A'}"
         content="${content//$'\r'/'%0D'}"
           # end of optional handling for multi line json
-        echo "matrix=$content" >> $GITHUB_ENV
+        echo "::set-output name=matrix::$content"
  
   create-resources:
     if: "!contains(github.event.commits[0].message, '[skip]')"
@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson( ${{ env.matrix }} ) }}
+      matrix: ${{ fromJson(needs.get-locations.outputs.matrix) }}
 
     steps:
     - name: Azure Login
@@ -99,7 +99,7 @@ jobs:
         uses: microsoft/setup-msbuild@v1
 
       - name: Setup NuGet
-        uses: NuGet/setup-nuget@v1.0.5
+        uses: NuGet/setup-nuget@v1.1.1
 
       - name: Restore Packages
         run: nuget restore ${{ env.FUNCTION_SOLUTION_PATH }}

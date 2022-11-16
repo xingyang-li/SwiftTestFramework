@@ -37,7 +37,7 @@ jobs:
         content="${content//$'\r'/'%0D'}"
           # end of optional handling for multi line json
         # echo "::set-output name=matrix::$content"
-        echo "matrix=$content" >> $GITHUB_OUTPUT
+        echo "matrix1=$content" >> $GITHUB_ENV
 
   print-locations:
     runs-on: ubuntu-latest
@@ -47,7 +47,7 @@ jobs:
     - name: print-matrix
       id: print-matrix
       run: |
-        echo ${{ needs.get-locations.outputs.matrix }}
+        echo $matrix1
  
   create-resources:
     if: "!contains(github.event.commits[0].message, '[skip]')"
@@ -55,7 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{ fromJson(needs.get-locations.outputs.matrix) }}
+      matrix: ${{ fromJson($matrix1) }}
 
     steps:
     - name: Azure Login

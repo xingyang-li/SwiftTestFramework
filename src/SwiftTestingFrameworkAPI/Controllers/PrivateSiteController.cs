@@ -29,7 +29,7 @@ namespace SwiftTestingFrameworkAPI.Controllers
         [HttpPost]
         public TestResponse RequestSite()
         {
-            string location = Environment.GetEnvironmentVariable("LOCATION");
+            string location = Environment.GetEnvironmentVariable("LOCATION") ?? String.Empty;
             string siteHostname = String.Format(Constants.PrivateSiteHostname, location);
             string scmHostname = String.Format(Constants.PrivateSiteScmHostname, location);
             Helper.ProcessOutput p;
@@ -86,7 +86,7 @@ namespace SwiftTestingFrameworkAPI.Controllers
         [HttpPost]
         public TestResponse RequestScmSite()
         {
-            string location = Environment.GetEnvironmentVariable("LOCATION");
+            string location = Environment.GetEnvironmentVariable("LOCATION") ?? String.Empty;
             string scmHostname = String.Format(Constants.PrivateSiteScmHostname, location);
             Helper.ProcessOutput p;
 

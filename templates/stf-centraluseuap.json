@@ -927,8 +927,7 @@
       "kind": "functionapp",
       "dependsOn": [
         "[resourceId('Microsoft.Web/serverfarms', variables('windowsAppServicePlanName'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('funcStorageAccountName'))]",
-        "[resourceId('Microsoft.Insights/components', variables('applicationInsightsName'))]"
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('funcStorageAccountName'))]"
       ],
       "properties": {
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('windowsAppServicePlanName'))]",

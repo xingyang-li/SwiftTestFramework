@@ -25,18 +25,21 @@ namespace SwiftTestingFrameworkAPI.Controllers
         }
 
         [HttpPost]
-        public TestResponse SqlConnect()
+        public ObjectResult SqlConnect()
         {
+            TestResponse testResponse;
             try
             {
                 string queryResult = Helper.ExecuteSqlQuery();
                 string details = "SQL table entry inserted successfully at " + queryResult;
-                return new TestResponse(Constants.ApiVersion, TestName, "Success", details, string.Empty);
+                testResponse = new TestResponse(Constants.ApiVersion, TestName, "Success", details, string.Empty);
+                return StatusCode(200, testResponse);
             }
             catch (Exception ex)
             {
                 //Replace with AntaresEventProvider or email send functionality
-                return new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, ex.Message + ex.StackTrace);
+                testResponse = new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, ex.Message + ex.StackTrace);
+                return StatusCode(555, testResponse);
             }
         }
     }

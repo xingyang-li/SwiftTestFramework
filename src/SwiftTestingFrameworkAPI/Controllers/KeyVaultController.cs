@@ -26,20 +26,23 @@ namespace SwiftTestingFrameworkAPI.Controllers
         }
 
         [HttpPost]
-        public TestResponse KeyVaultSecret()
+        public ObjectResult KeyVaultSecret()
         {
-            Dictionary<string, string> references = new Dictionary<string, string>();   
+            Dictionary<string, string> references = new Dictionary<string, string>();
+            TestResponse testResponse;
             string secret1value = Environment.GetEnvironmentVariable("secret1") ?? string.Empty;
 
             if (secret1value.Contains("@Microsoft.KeyVault") || String.IsNullOrEmpty(secret1value))
             {
-                return new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, "Reference not resolved.");
+                testResponse = new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, "Reference not resolved.");
+                return StatusCode(555, testResponse);
             }
             else
             {
                 references.Add("secret1", secret1value);
                 string referencesJson = JsonConvert.SerializeObject(references);
-                return new TestResponse(Constants.ApiVersion, TestName, "Success", referencesJson, string.Empty);
+                testResponse = new TestResponse(Constants.ApiVersion, TestName, "Success", referencesJson, string.Empty);
+                return StatusCode(200, testResponse);
             }
         }
     }

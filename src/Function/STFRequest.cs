@@ -45,7 +45,8 @@ namespace Function
                 {
                     log.LogError("Site not found");
                     string responseContent = response.Content.ReadAsStringAsync().Result;
-                    ErrorResponse errorResponse = new ErrorResponse(Helper.ServiceName, timestamp, siteName, responseContent);
+                    int statusCode = ((int)response.StatusCode);
+                    ErrorResponse errorResponse = new ErrorResponse(Helper.ServiceName, timestamp, siteName, statusCode, responseContent);
                     string responseBody = JsonConvert.SerializeObject(errorResponse, Formatting.Indented);
                     AntaresEventProvider.EventWriteSwiftWarningWithVnetId(responseBody, string.Empty);
                     log.LogInformation(responseBody);
@@ -54,7 +55,8 @@ namespace Function
                 {
                     log.LogError("Server Error");
                     string responseContent = response.Content.ReadAsStringAsync().Result;
-                    ErrorResponse errorResponse = new ErrorResponse(Helper.ServiceName, timestamp, siteName, responseContent);
+                    int statusCode = ((int)response.StatusCode);
+                    ErrorResponse errorResponse = new ErrorResponse(Helper.ServiceName, timestamp, siteName, statusCode, responseContent);
                     string responseBody = JsonConvert.SerializeObject(errorResponse, Formatting.Indented);
                     AntaresEventProvider.EventWriteSwiftWarningWithVnetId(responseBody, string.Empty);
                     log.LogInformation(responseBody);
@@ -80,6 +82,10 @@ namespace Function
             response = Helper.SendRequest(client, windowsAppUrl + "/PrivateScmSite", HttpMethod.Post);
             testSuiteResponse.Endpoints.Add("PrivateScmSite", response.StatusCode);
             log.LogInformation("PrivateScmSite: " + response.StatusCode.ToString());
+
+            response = Helper.SendRequest(client, windowsAppUrl + "/KeyVaultSecret", HttpMethod.Post);
+            testSuiteResponse.Endpoints.Add("KeyVaultSecret", response.StatusCode);
+            log.LogInformation("KeyVaultSecret: " + response.StatusCode.ToString());
 
             string jsonString = JsonConvert.SerializeObject(testSuiteResponse, Formatting.Indented);
             log.LogInformation(jsonString);
@@ -122,7 +128,8 @@ namespace Function
                 {
                     log.LogInformation("Site not found");
                     string responseContent = response.Content.ReadAsStringAsync().Result;
-                    ErrorResponse errorResponse = new ErrorResponse(Helper.ServiceName, timestamp, siteName, responseContent);
+                    int statusCode = ((int)response.StatusCode);
+                    ErrorResponse errorResponse = new ErrorResponse(Helper.ServiceName, timestamp, siteName, statusCode, responseContent);
                     string responseBody = JsonConvert.SerializeObject(errorResponse, Formatting.Indented);
                     AntaresEventProvider.EventWriteSwiftWarningWithVnetId(responseBody, string.Empty);
                     log.LogInformation(responseBody);
@@ -132,7 +139,8 @@ namespace Function
                 {
                     log.LogError("Server Error");
                     string responseContent = response.Content.ReadAsStringAsync().Result;
-                    ErrorResponse errorResponse = new ErrorResponse(Helper.ServiceName, timestamp, siteName, responseContent);
+                    int statusCode = ((int)response.StatusCode);
+                    ErrorResponse errorResponse = new ErrorResponse(Helper.ServiceName, timestamp, siteName, statusCode, responseContent);
                     string responseBody = JsonConvert.SerializeObject(errorResponse, Formatting.Indented);
                     AntaresEventProvider.EventWriteSwiftWarningWithVnetId(responseBody, string.Empty);
                     log.LogInformation(responseBody);
@@ -158,6 +166,10 @@ namespace Function
             response = Helper.SendRequest(client, linuxAppUrl + "/PrivateScmSite", HttpMethod.Post);
             testSuiteResponse.Endpoints.Add("PrivateScmSite", response.StatusCode);
             log.LogInformation("PrivateScmSite: " + response.StatusCode.ToString());
+
+            response = Helper.SendRequest(client, linuxAppUrl + "/KeyVaultSecret", HttpMethod.Post);
+            testSuiteResponse.Endpoints.Add("KeyVaultSecret", response.StatusCode);
+            log.LogInformation("KeyVaultSecret: " + response.StatusCode.ToString());
 
             string jsonString = JsonConvert.SerializeObject(testSuiteResponse, Formatting.Indented);
             log.LogInformation(jsonString);

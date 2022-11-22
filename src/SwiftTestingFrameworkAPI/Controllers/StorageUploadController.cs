@@ -25,8 +25,9 @@ namespace SwiftTestingFrameworkAPI.Controllers
         }
 
         [HttpPost]
-        public TestResponse StorageUpload()
+        public ObjectResult StorageUpload()
         {
+            TestResponse testResponse;
             try
             {
                 PageBlobClient pageBlobClient = Helper.GetPageBlobClient("TestBlob");
@@ -34,17 +35,20 @@ namespace SwiftTestingFrameworkAPI.Controllers
                 if (response.GetRawResponse().Status == 201)
                 {
                     string details = "Blob uploaded sucessfully at " + response.Value.LastModified.ToString();
-                    return new TestResponse(Constants.ApiVersion, TestName, "Success", details, string.Empty);
+                    testResponse = new TestResponse(Constants.ApiVersion, TestName, "Success", details, string.Empty);
+                    return StatusCode(200, testResponse);
                 }
                 else
                 {
-                    return new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, response.GetRawResponse().Content.ToString());
+                    testResponse = new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, response.GetRawResponse().Content.ToString());
+                    return StatusCode(555, testResponse);   
                 }
             }
             catch (Exception ex)
             {
                 //Replace with AntaresEventProvider or email send functionality
-                return new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, ex.Message + ex.StackTrace);
+                testResponse = new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, ex.Message + ex.StackTrace);
+                return StatusCode(555, testResponse);
             }
         }
     }

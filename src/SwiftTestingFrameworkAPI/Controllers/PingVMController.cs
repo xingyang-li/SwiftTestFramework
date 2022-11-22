@@ -26,9 +26,10 @@ namespace SwiftTestingFrameworkAPI.Controllers
         }
 
         [HttpPost]
-        public TestResponse PingVM()
+        public ObjectResult PingVM()
         {
             Helper.ProcessOutput p;
+            TestResponse testResponse;
             try
             {
  
@@ -43,16 +44,19 @@ namespace SwiftTestingFrameworkAPI.Controllers
 
                 if (p.ExitCode == 0)
                 {
-                    return new TestResponse(Constants.ApiVersion, TestName, "Success", p.StdOutput, string.Empty);
+                    testResponse = new TestResponse(Constants.ApiVersion, TestName, "Success", p.StdOutput, string.Empty);
+                    return StatusCode(200, testResponse);
                 }
                 else
                 {
-                    return new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, p.StdError);
+                    testResponse = new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, p.StdError);
+                    return StatusCode(555, testResponse);
                 }
             }
             catch (Exception ex)
             {
-                return new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, ex.Message + ex.StackTrace);
+                testResponse = new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, ex.Message + ex.StackTrace);
+                return StatusCode(555, testResponse);
             }
         }
     }

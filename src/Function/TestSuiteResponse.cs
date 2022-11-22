@@ -24,13 +24,15 @@ namespace Function
         public string Service { get; set; }
         public string Timestamp { get; set; }
         public string SiteName { get; set; }
+        public int StatusCode { get; set; }
         public string Message { get; set; }
 
-        public ErrorResponse(string service, string timestamp, string siteName, string message)
+        public ErrorResponse(string service, string timestamp, string siteName, int statusCode, string message)
         {
             Service = service;
             Timestamp = timestamp;
             SiteName = siteName;
+            StatusCode = statusCode;
             Message = message;
         }
     }

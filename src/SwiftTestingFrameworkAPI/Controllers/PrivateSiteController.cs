@@ -27,12 +27,13 @@ namespace SwiftTestingFrameworkAPI.Controllers
         }
 
         [HttpPost]
-        public TestResponse RequestSite()
+        public ObjectResult RequestSite()
         {
             string location = Environment.GetEnvironmentVariable("LOCATION") ?? String.Empty;
             string siteHostname = String.Format(Constants.PrivateSiteHostname, location);
             string scmHostname = String.Format(Constants.PrivateSiteScmHostname, location);
             Helper.ProcessOutput p;
+            TestResponse testResponse;
 
             try
             {
@@ -42,21 +43,25 @@ namespace SwiftTestingFrameworkAPI.Controllers
                 {
                     if (p.StdOutput.Contains("privatelink"))
                     {
-                        return new TestResponse(Constants.ApiVersion, TestName, "Success", p.StdOutput, string.Empty);
+                        testResponse = new TestResponse(Constants.ApiVersion, TestName, "Success", p.StdOutput, string.Empty);
+                        return StatusCode(200, testResponse);
                     }
                     else
                     {
-                        return new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, "Did not resolve through privatelink");
+                        testResponse = new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, "Did not resolve through privatelink");
+                        return StatusCode(555, testResponse);
                     }
                 }
                 else
                 {
-                    return new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, siteHostname);
+                    testResponse =  new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, siteHostname);
+                    return StatusCode(555, testResponse);
                 }
             }
             catch (Exception ex)
             {
-                return new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, ex.Message + ex.StackTrace);
+                testResponse = new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, ex.Message + ex.StackTrace);
+                return StatusCode(555, testResponse);
             }
 
         }

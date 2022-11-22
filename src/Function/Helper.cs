@@ -34,7 +34,7 @@ namespace Function
                         if (httpEx.InnerException.GetType() == typeof(WebException))
                         {
                             WebException webEx = (WebException)httpEx.InnerException;
-                            if (webEx.Status == WebExceptionStatus.NameResolutionFailure)
+                            if (webEx.Status == WebExceptionStatus.NameResolutionFailure || webEx.Status == WebExceptionStatus.ConnectFailure)
                             {
                                 HttpResponseMessage responseMessage = new HttpResponseMessage(System.Net.HttpStatusCode.NotFound);
                                 responseMessage.Content = new StringContent(webEx.Message);

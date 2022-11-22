@@ -36,6 +36,7 @@
     }
   },
   "variables": {
+    "tenantId": "[subscription().tenantId]",
     "vNetName": "[concat(parameters('projectName'), '-vnet')]",
     "vNetAddressPrefixes": "10.0.0.0/16",
     "vNetSubnetName": "default",
@@ -58,6 +59,10 @@
     "applicationInsightsName": "[variables('functionAppName')]",
     "storageAccountName": "[concat(replace(parameters('projectName'), '-', ''), 'stor')]",
     "funcStorageAccountName": "[concat(replace(parameters('projectName'), '-', ''), 'fstor')]",
+    "keyVaultName": "[concat(parameters('projectName'), '-vault')]",
+    "secretName": "secret1",
+    "secretValue": "secretValue",
+    "secretResourceId": "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('secretName'))]",
     "storagePrivateEndpointConnName": "[concat(parameters('projectName'), '-stor-pe')]",
     "sitePrivateEndpointConnName": "[concat(parameters('projectName'), '-site-pe')]",
     "blobPrivateZoneName": "privatelink.blob.core.windows.net",
@@ -265,6 +270,14 @@
               "networkSecurityGroup": {
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName2'))]"
               },
+              "serviceEndpoints": [
+                {
+                  "service": "Microsoft.KeyVault",
+                  "locations": [
+                    "*"
+                  ]
+                }
+              ],
               "privateEndpointNetworkPolicies": "Disabled"
             }
           },
@@ -275,6 +288,14 @@
               "networkSecurityGroup": {
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName2'))]"
               },
+              "serviceEndpoints": [
+                {
+                  "service": "Microsoft.KeyVault",
+                  "locations": [
+                    "*"
+                  ]
+                }
+              ],
               "delegations": [
                 {
                   "name": "Microsoft.Web.serverFarms",
@@ -296,6 +317,14 @@
               "networkSecurityGroup": {
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName2'))]"
               },
+              "serviceEndpoints": [
+                {
+                  "service": "Microsoft.KeyVault",
+                  "locations": [
+                    "*"
+                  ]
+                }
+              ],
               "delegations": [
                 {
                   "name": "Microsoft.Web.serverFarms",
@@ -609,6 +638,70 @@
       }
     },
     {
+      "name": "[variables('keyVaultName')]",
+      "type": "Microsoft.KeyVault/vaults",
+      "apiVersion": "2019-09-01",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('windowsAppName'))]",
+        "[resourceId('Microsoft.Web/sites', variables('linuxAppName'))]"
+      ],
+      "properties": {
+        "tenantId": "[variables('tenantId')]",
+        "sku": {
+          "family": "A",
+          "name": "standard"
+        },
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "defaultAction": "Deny",
+          "ipRules": [],
+          "virtualNetworkRules": [
+            {
+              "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNetName'), variables('windowsAppSubnetName'))]",
+              "ignoreMissingVnetServiceEndpoint": false
+            },
+            {
+              "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNetName'), variables('linuxAppSubnetName'))]",
+              "ignoreMissingVnetServiceEndpoint": false
+            }
+          ]
+        },
+        "accessPolicies": [
+          {
+            "tenantId": "[reference(resourceId('Microsoft.Web/sites/', variables('windowsAppName')), '2020-12-01', 'Full').identity.tenantId]",
+            "objectId": "[reference(resourceId('Microsoft.Web/sites/', variables('windowsAppName')), '2020-12-01', 'Full').identity.principalId]",
+            "permissions": {
+              "secrets": [ "get" ]
+            }
+          },
+          {
+            "tenantId": "[reference(resourceId('Microsoft.Web/sites/', variables('linuxAppName')), '2020-12-01', 'Full').identity.tenantId]",
+            "objectId": "[reference(resourceId('Microsoft.Web/sites/', variables('linuxAppName')), '2020-12-01', 'Full').identity.principalId]",
+            "permissions": {
+              "secrets": [ "get" ]
+            }
+          }
+        ],
+        "enabledForDeployment": true,
+        "enabledForDiskEncryption": true,
+        "enabledForTemplateDeployment": true,
+        "enableSoftDelete": false,
+        "publicNetworkAccess": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2021-11-01-preview",
+      "name": "[format('{0}/{1}', variables('keyVaultName'), variables('secretName'))]",
+      "properties": {
+        "value": "[variables('secretValue')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]"
+      ]
+    },
+    {
       "type": "Microsoft.Web/serverfarms",
       "apiVersion": "2020-06-01",
       "name": "[variables('windowsAppServicePlanName')]",
@@ -681,6 +774,9 @@
         "[resourceId('Microsoft.Web/serverFarms', variables('windowsAppServicePlanName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ],
+      "identity": {
+        "type": "SystemAssigned"
+      },
       "properties": {
         "enabled": true,
         "serverFarmId": "[resourceId('Microsoft.Web/serverFarms', variables('windowsAppServicePlanName'))]",
@@ -700,16 +796,6 @@
               "connectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1)]",
               "type": "Custom"
             }
-          ],
-          "appSettings": [
-            {
-              "name": "WEBSITE_VNET_ROUTE_ALL",
-              "value": "1"
-            },
-            {
-              "name": "LOCATION",
-              "value": "[parameters('location')]"
-            }
           ]
         },
         "scmSiteAlsoStopped": false,
@@ -724,7 +810,23 @@
         "storageAccountRequired": false,
         "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNetName'), variables('windowsAppSubnetName'))]",
         "keyVaultReferenceIdentity": "SystemAssigned"
-      }
+      },
+      "resources": [
+        {
+          "name": "appsettings",
+          "type": "config",
+          "apiVersion": "2018-11-01",
+          "properties": {
+            "secret1": "[concat('@Microsoft.KeyVault(SecretUri=', reference(variables('secretResourceId')).secretUriWithVersion, ')')]",
+            "WEBSITE_VNET_ROUTE_ALL": "1",
+            "LOCATION": "[parameters('location')]"
+          },
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('windowsAppName'))]",
+            "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('secretName'))]"
+          ]
+        }
+      ]
     },
     {
       "type": "Microsoft.Web/sites",
@@ -737,6 +839,9 @@
         "[resourceId('Microsoft.Web/serverFarms', variables('linuxAppServicePlanName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ],
+      "identity": {
+        "type": "SystemAssigned"
+      },
       "properties": {
         "enabled": true,
         "serverFarmId": "[variables('linuxAppServicePlanName')]",
@@ -757,16 +862,6 @@
               "connectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1)]",
               "type": "Custom"
             }
-          ],
-          "appSettings": [
-            {
-              "name": "WEBSITE_VNET_ROUTE_ALL",
-              "value": "1"
-            },
-            {
-              "name": "LOCATION",
-              "value": "[parameters('location')]"
-            }
           ]
         },
         "scmSiteAlsoStopped": false,
@@ -781,7 +876,23 @@
         "storageAccountRequired": false,
         "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNetName'), variables('linuxAppSubnetName'))]",
         "keyVaultReferenceIdentity": "SystemAssigned"
-      }
+      },
+      "resources": [
+        {
+          "name": "appsettings",
+          "type": "config",
+          "apiVersion": "2018-11-01",
+          "properties": {
+            "secret1": "[concat('@Microsoft.KeyVault(SecretUri=', reference(variables('secretResourceId')).secretUriWithVersion, ')')]",
+            "WEBSITE_VNET_ROUTE_ALL": "1",
+            "LOCATION": "[parameters('location')]"
+          },
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('linuxAppName'))]",
+            "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('secretName'))]"
+          ]
+        }
+      ]
     },
     {
       "type": "Microsoft.Web/sites",

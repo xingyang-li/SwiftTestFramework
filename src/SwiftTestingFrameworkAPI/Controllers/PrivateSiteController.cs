@@ -37,7 +37,14 @@ namespace SwiftTestingFrameworkAPI.Controllers
 
             try
             {
-                p = Helper.StartProcess("nameresolver.exe", siteHostname + " " + Constants.AzureDNS);
+                if (OperatingSystem.IsWindows())
+                {
+                    p = Helper.StartProcess("nameresolver.exe", siteHostname + " " + Constants.AzureDNS);
+                }
+                else
+                {
+                    p = Helper.StartProcess("nslookup", siteHostname + " " + Constants.AzureDNS);
+                }
 
                 if (p.ExitCode == 0)
                 {
@@ -48,13 +55,13 @@ namespace SwiftTestingFrameworkAPI.Controllers
                     }
                     else
                     {
-                        testResponse = new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, "Did not resolve through privatelink");
+                        testResponse = new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, "Privatelink CNAME for site does not exist.");
                         return StatusCode(555, testResponse);
                     }
                 }
                 else
                 {
-                    testResponse =  new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, siteHostname);
+                    testResponse =  new TestResponse(Constants.ApiVersion, TestName, "Failure", "Exit Code not 0", p.StdError);
                     return StatusCode(555, testResponse);
                 }
             }
@@ -89,35 +96,47 @@ namespace SwiftTestingFrameworkAPI.Controllers
         }
 
         [HttpPost]
-        public TestResponse RequestScmSite()
+        public ObjectResult RequestScmSite()
         {
             string location = Environment.GetEnvironmentVariable("LOCATION") ?? String.Empty;
             string scmHostname = String.Format(Constants.PrivateSiteScmHostname, location);
             Helper.ProcessOutput p;
+            TestResponse testResponse;
 
             try
             {
-                p = Helper.StartProcess("nameresolver.exe", scmHostname + " " + Constants.AzureDNS);
+                if (OperatingSystem.IsWindows())
+                {
+                    p = Helper.StartProcess("nameresolver.exe", scmHostname + " " + Constants.AzureDNS);
+                }
+                else
+                {
+                    p = Helper.StartProcess("nslookup", scmHostname + " " + Constants.AzureDNS);
+                }
 
                 if (p.ExitCode == 0)
                 {
                     if (p.StdOutput.Contains("privatelink"))
                     {
-                        return new TestResponse(Constants.ApiVersion, TestName, "Success", p.StdOutput, string.Empty);
+                        testResponse = new TestResponse(Constants.ApiVersion, TestName, "Success", p.StdOutput, string.Empty);
+                        return StatusCode(200, testResponse);
                     }
                     else
                     {
-                        return new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, "Did not resolve through privatelink");
+                        testResponse = new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, "Privatelink CNAME does not exist for site");
+                        return StatusCode(555, testResponse);
                     }
                 }
                 else
                 {
-                    return new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, p.StdError);
+                    testResponse = new TestResponse(Constants.ApiVersion, TestName, "Failure", "Exit code not 0", p.StdError);
+                    return StatusCode(555, testResponse);
                 }
             }
             catch (Exception ex)
             {
-                return new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, ex.Message + ex.StackTrace);
+                testResponse = new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, ex.Message + ex.StackTrace);
+                return StatusCode(555, testResponse);
             }
 
         }

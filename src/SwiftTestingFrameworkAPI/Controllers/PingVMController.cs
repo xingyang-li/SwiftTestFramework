@@ -33,7 +33,7 @@ namespace SwiftTestingFrameworkAPI.Controllers
             try
             {
  
-                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                if (OperatingSystem.IsWindows())
                 {
                     p = Helper.StartProcess("tcpping.exe", Constants.VmAddress);
                 }

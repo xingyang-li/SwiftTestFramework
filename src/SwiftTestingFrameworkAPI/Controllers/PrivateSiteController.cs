@@ -29,9 +29,8 @@ namespace SwiftTestingFrameworkAPI.Controllers
         [HttpPost]
         public ObjectResult RequestSite()
         {
-            string location = Environment.GetEnvironmentVariable("LOCATION") ?? String.Empty;
-            string siteHostname = String.Format(Constants.PrivateSiteHostname, location);
-            string scmHostname = String.Format(Constants.PrivateSiteScmHostname, location);
+            string projectName = Environment.GetEnvironmentVariable("ResourceGroup") ?? String.Empty;
+            string siteHostname = String.Format(Constants.PrivateSiteHostname, projectName);
             Helper.ProcessOutput p;
             TestResponse testResponse;
 
@@ -98,8 +97,8 @@ namespace SwiftTestingFrameworkAPI.Controllers
         [HttpPost]
         public ObjectResult RequestScmSite()
         {
-            string location = Environment.GetEnvironmentVariable("LOCATION") ?? String.Empty;
-            string scmHostname = String.Format(Constants.PrivateSiteScmHostname, location);
+            string projectName = Environment.GetEnvironmentVariable("ResourceGroup") ?? String.Empty;
+            string scmHostname = String.Format(Constants.PrivateSiteScmHostname, projectName);
             Helper.ProcessOutput p;
             TestResponse testResponse;
 

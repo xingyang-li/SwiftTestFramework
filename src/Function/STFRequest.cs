@@ -21,8 +21,8 @@ namespace Function
         {
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
-            string location = Environment.GetEnvironmentVariable("LOCATION");
-            string windowsAppUrl = String.Format(Helper.WindowsAppUrl, location);
+            string projectName = Environment.GetEnvironmentVariable("ResourceGroup");
+            string windowsAppUrl = String.Format(Helper.WindowsAppUrl, projectName);
             Uri windowsAppUri = new Uri(windowsAppUrl);
             string timestamp = DateTime.Now.ToString();
             string siteName = windowsAppUri.Host.Split('.')[0];
@@ -104,8 +104,8 @@ namespace Function
         {
             log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
 
-            string location = Environment.GetEnvironmentVariable("LOCATION");
-            string linuxAppUrl = String.Format(Helper.LinuxAppUrl, location);
+            string projectName = Environment.GetEnvironmentVariable("ResourceGroup");
+            string linuxAppUrl = String.Format(Helper.LinuxAppUrl, projectName);
             Uri linuxAppUri = new Uri(linuxAppUrl);
             string timestamp = DateTime.Now.ToString();
             string siteName = linuxAppUri.Host.Split('.')[0];

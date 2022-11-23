@@ -12,8 +12,8 @@ namespace Function
 {
     public class Helper
     {
-        public const string WindowsAppUrl = "https://stf-{0}-winapp.azurewebsites.net";
-        public const string LinuxAppUrl = "https://stf-{0}-linuxapp.azurewebsites.net";
+        public const string WindowsAppUrl = "https://{0}-winapp.azurewebsites.net";
+        public const string LinuxAppUrl = "https://{0}-linuxapp.azurewebsites.net";
         public const string ServiceName = "Swift Test Framework";
 
         public static HttpResponseMessage SendRequest(HttpClient client, string url, HttpMethod method)

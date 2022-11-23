@@ -9,7 +9,7 @@
         public const string StorageContainerName = "testcontainer";
         public const string StorageConnectionStringName = "CUSTOMCONNSTR_Storage";
         public const string SqlDatabaseConnectionStringName = "SQLAZURECONNSTR_Database";
-        public const string PrivateSiteHostname = "stf-{0}-privateapp.azurewebsites.net";
-        public const string PrivateSiteScmHostname = "stf-{0}-privateapp.scm.azurewebsites.net";
+        public const string PrivateSiteHostname = "{0}-privateapp.azurewebsites.net";
+        public const string PrivateSiteScmHostname = "{0}-privateapp.scm.azurewebsites.net";
     }
 }

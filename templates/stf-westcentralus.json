@@ -806,7 +806,7 @@
           "properties": {
             "secret1": "[concat('@Microsoft.KeyVault(SecretUri=', reference(variables('secretResourceId')).secretUriWithVersion, ')')]",
             "WEBSITE_VNET_ROUTE_ALL": "1",
-            "LOCATION": "[parameters('location')]"
+            "ResourceGroup": "[parameters('projectName')]"
           },
           "dependsOn": [
             "[resourceId('Microsoft.Web/Sites', variables('windowsAppName'))]",
@@ -872,7 +872,7 @@
           "properties": {
             "secret1": "[concat('@Microsoft.KeyVault(SecretUri=', reference(variables('secretResourceId')).secretUriWithVersion, ')')]",
             "WEBSITE_VNET_ROUTE_ALL": "1",
-            "LOCATION": "[parameters('location')]"
+            "ResourceGroup": "[parameters('projectName')]"
           },
           "dependsOn": [
             "[resourceId('Microsoft.Web/Sites', variables('linuxAppName'))]",
@@ -947,8 +947,8 @@
               "value": "dotnet"
             },
             {
-              "name": "LOCATION",
-              "value": "[parameters('location')]"
+              "name": "ResourceGroup",
+              "value": "[parameters('projectName')]"
             }
           ]
         }

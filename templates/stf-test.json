@@ -52,6 +52,8 @@
     "linuxAppName": "[concat(parameters('projectName'), '-linuxapp')]",
     "linuxAppServicePlanName": "[concat(parameters('projectName'), '-linuxasp')]",
     "linuxAppSubnetName": "linuxAppSubnet",
+    "miscAppServicePlanName": "[concat(parameters('projectName'), '-miscasp')]",
+    "funcAppServicePlanName": "[concat(parameters('projectName'), '-funcasp')]",
     "publicIPAddressName": "[concat(parameters('projectName'), '-ip')]",
     "networkInterfaceName": "[concat(parameters('projectName'), '-nic')]",
     "networkSecurityGroupName": "[concat(parameters('projectName'), '-nsg')]",
@@ -751,6 +753,55 @@
       }
     },
     {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('miscAppServicePlanName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "P1v2",
+        "tier": "PremiumV2",
+        "size": "P1v2",
+        "family": "Pv2",
+        "capacity": 1
+      },
+      "kind": "app,linux",
+      "properties": {
+        "reserved": true,
+        "workerSize": "Default",
+        "workerSizeId": 0,
+        "workerTierName": null,
+        "numberOfWorkers": 1,
+        "currentWorkerSize": "Default",
+        "currentWorkerSizeId": 0,
+        "currentNumberOfWorkers": 1
+      }
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('funcAppServicePlanName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "P1v2",
+        "tier": "PremiumV2",
+        "size": "P1v2",
+        "family": "Pv2",
+        "capacity": 1
+      },
+      "kind": "app",
+      "properties": {
+        "reserved": false,
+        "workerSize": "Default",
+        "workerSizeId": 0,
+        "workerTierName": null,
+        "numberOfWorkers": 1,
+        "currentWorkerSize": "Default",
+        "currentWorkerSizeId": 0,
+        "currentNumberOfWorkers": 1,
+        "kind": "app"
+      }
+    },
+    {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2021-01-15",
       "name": "[variables('windowsAppName')]",
@@ -889,11 +940,11 @@
       "kind": "app,linux",
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]",
-        "[resourceId('Microsoft.Web/serverFarms', variables('linuxAppServicePlanName'))]"
+        "[resourceId('Microsoft.Web/serverFarms', variables('miscAppServicePlanName'))]"
       ],
       "properties": {
         "enabled": true,
-        "serverFarmId": "[variables('linuxAppServicePlanName')]",
+        "serverFarmId": "[variables('miscAppServicePlanName')]",
         "reserved": true,
         "isXenon": false,
         "hyperV": false,
@@ -920,20 +971,38 @@
       }
     },
     {
+      "type": "microsoft.insights/components",
+      "apiVersion": "2020-02-02",
+      "name": "[variables('applicationInsightsName')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "[concat('hidden-link:', resourceId('Microsoft.Web/sites', variables('applicationInsightsName')))]": "Resource"
+      },
+      "properties": {
+        "Application_Type": "web"
+      },
+      "kind": "web"
+    },
+    {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2021-02-01",
       "name": "[variables('functionAppName')]",
       "location": "[parameters('location')]",
       "kind": "functionapp",
       "dependsOn": [
-        "[resourceId('Microsoft.Web/serverfarms', variables('windowsAppServicePlanName'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('funcStorageAccountName'))]"
+        "[resourceId('Microsoft.Web/serverfarms', variables('funcAppServicePlanName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('funcStorageAccountName'))]",
+        "[resourceId('Microsoft.Insights/components', variables('applicationInsightsName'))]"
       ],
       "properties": {
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('windowsAppServicePlanName'))]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('funcAppServicePlanName'))]",
         "siteConfig": {
           "alwaysOn": true,
           "appSettings": [
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(resourceId('microsoft.insights/components', variables('applicationInsightsName')), '2015-05-01').InstrumentationKey]"
+            },
             {
               "name": "AzureWebJobsStorage",
               "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('funcStorageAccountName'), ';EndpointSuffix=', environment().suffixes.storage, ';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('funcStorageAccountName')), '2019-06-01').keys[0].value)]"

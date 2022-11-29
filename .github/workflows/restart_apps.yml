@@ -1,0 +1,60 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Restart Apps
+
+env:
+  DOTNET_VERSION: '6.0.x'
+  FRAMEWORK_PROJECT_PATH: src/SwiftTestingFramework
+
+on:
+
+  schedule:
+    - cron: '0 */12 * * *'  # every 12 hours
+
+concurrency: 
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  get-locations:
+    runs-on: ubuntu-latest
+    outputs: 
+      matrix: ${{ steps.get-matrix.outputs.matrix }}
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Read Locations
+      id: get-matrix
+      run: |
+        content=`cat $GITHUB_WORKSPACE/location_matrix.json`
+          # the following lines are only required for multi line json
+        content="${content//'%'/'%25'}"
+        content="${content//$'\n'/}"
+        content="${content//$'\r'/'%0D'}"
+        echo "matrix=$content" >> $GITHUB_OUTPUT
+
+  restart-apps:
+    needs: get-locations
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.get-locations.outputs.matrix) }}
+
+    steps:
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Azure CLI script
+      uses: azure/CLI@v1
+      with:
+        azcliversion: 2.30.0
+        inlineScript: |
+          az webapp restart stf-${{matrix.location}}-winapp
+          az webapp restart stf-${{matrix.location}}-linuxapp

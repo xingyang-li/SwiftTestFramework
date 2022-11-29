@@ -56,5 +56,5 @@ jobs:
       with:
         azcliversion: 2.30.0
         inlineScript: |
-          az webapp restart stf-${{matrix.location}}-winapp
-          az webapp restart stf-${{matrix.location}}-linuxapp
+          az webapp restart --name stf-${{matrix.location}}-winapp --resource-group stf-${{matrix.location}}
+          az webapp restart --name stf-${{matrix.location}}-linuxapp --resource-group stf-${{matrix.location}}

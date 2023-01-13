@@ -38,12 +38,16 @@
   "variables": {
     "tenantId": "[subscription().tenantId]",
     "vNetName": "[concat(parameters('projectName'), '-vnet')]",
+    "peeredVnetName": "[concat(parameters('projectName'), '-peered-vnet')]",
     "vNetAddressPrefixes": "10.0.0.0/16",
+    "peeredVnetAddressPrefixes": "172.16.0.0/16",
+    "peeredVnetSubnetAddressPrefix": "172.16.0.0/24",
     "vNetSubnetName": "default",
     "vNetSubnetAddressPrefix": "10.0.0.0/24",
     "windowsAppSubnetPrefix": "10.0.1.0/24",
     "linuxAppSubnetPrefix": "10.0.2.0/24",
     "vmName": "[concat(parameters('projectName'), '-vm')]",
+    "peeredVmName": "peered-vm",
     "functionAppName": "[concat(parameters('projectName'), '-functionapp')]",
     "privateAppName": "[concat(parameters('projectName'), '-privateapp')]",
     "windowsAppName": "[concat(parameters('projectName'), '-winapp')]",
@@ -55,7 +59,9 @@
     "miscAppServicePlanName": "[concat(parameters('projectName'), '-miscasp')]",
     "funcAppServicePlanName": "[concat(parameters('projectName'), '-funcasp')]",
     "publicIPAddressName": "[concat(parameters('projectName'), '-ip')]",
+    "peeredPublicIPAddressName": "peered-ip",
     "networkInterfaceName": "[concat(parameters('projectName'), '-nic')]",
+    "peeredNetworkInterfaceName": "peered-nic",
     "networkSecurityGroupName": "[concat(parameters('projectName'), '-nsg')]",
     "networkSecurityGroupName2": "[concat(variables('vNetSubnetName'), '-nsg')]",
     "applicationInsightsName": "[variables('functionAppName')]",
@@ -156,6 +162,18 @@
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2020-05-01",
       "name": "[variables('publicIPAddressName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic"
+      },
+      "sku": {
+        "name": "Basic"
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-05-01",
+      "name": "[variables('peeredPublicIPAddressName')]",
       "location": "[parameters('location')]",
       "properties": {
         "publicIPAllocationMethod": "Dynamic"
@@ -345,6 +363,69 @@
       }
     },
     {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-05-01",
+      "name": "[variables('peeredVnetName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName2'))]"
+      ],
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('peeredVnetAddressPrefixes')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('vNetSubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('peeredVnetSubnetAddressPrefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName2'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+      "apiVersion": "2020-05-01",
+      "name": "[format('{0}/{1}', variables('vNetName'), 'stf-peer')]",
+      "properties": {
+        "allowVirtualNetworkAccess": true,
+        "allowForwardedTraffic": true,
+        "allowGatewayTransit": false,
+        "useRemoteGateways": false,
+        "remoteVirtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('peeredVnetName'))]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('peeredVnetName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+      "apiVersion": "2020-05-01",
+      "name": "[format('{0}/{1}', variables('peeredVnetName'), 'peer-stf')]",
+      "properties": {
+        "allowVirtualNetworkAccess": true,
+        "allowForwardedTraffic": true,
+        "allowGatewayTransit": false,
+        "useRemoteGateways": false,
+        "remoteVirtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]"
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('peeredVnetName'))]"
+      ]
+    },
+    {
       "type": "Microsoft.Network/networkInterfaces",
       "apiVersion": "2020-05-01",
       "name": "[variables('networkInterfaceName')]",
@@ -365,6 +446,33 @@
               },
               "subnet": {
                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNetName'), variables('vNetSubnetName'))]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-05-01",
+      "name": "[variables('peeredNetworkInterfaceName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('peeredPublicIPAddressName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('peeredVnetName'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('peeredPublicIPAddressName'))]"
+              },
+              "subnet": {
+                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('peeredVnetName'), variables('vNetSubnetName'))]"
               }
             }
           }
@@ -425,6 +533,78 @@
       "apiVersion": "2019-03-01",
       "dependsOn": [
         "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]"
+      ],
+      "tags": {
+        "displayName": "config-app"
+      },
+      "properties": {
+        "publisher": "Microsoft.Azure.Extensions",
+        "type": "CustomScript",
+        "typeHandlerVersion": "2.1",
+        "autoUpgradeMinorVersion": true,
+        "settings": {},
+        "protectedSettings": {
+          "commandToExecute": "sh start.sh",
+          "fileUris": [
+            "https://raw.githubusercontent.com/xingyang-li/SwiftTestFramework/main/dnsExtension/start.sh"
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-12-01",
+      "name": "[variables('peeredVmName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('peeredNetworkInterfaceName'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[variables('peeredVmName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": true,
+            "ssh": {
+              "publicKeys": [
+                {
+                  "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
+                  "keyData": "[parameters('adminPublicKey')]"
+                }
+              ]
+            }
+          }
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "18_04-lts-gen2",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "fromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('peeredNetworkInterfaceName'))]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "[concat(variables('peeredVmName'), '/config-app')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2019-03-01",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', variables('peeredVmName'))]"
       ],
       "tags": {
         "displayName": "config-app"

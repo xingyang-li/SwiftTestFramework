@@ -544,9 +544,9 @@
         "autoUpgradeMinorVersion": true,
         "settings": {},
         "protectedSettings": {
-          "commandToExecute": "sh start.sh",
+          "commandToExecute": "sh start-dns.sh",
           "fileUris": [
-            "https://raw.githubusercontent.com/xingyang-li/SwiftTestFramework/main/dnsExtension/start.sh"
+            "http://aleksboldedicatedapp.azurewebsites.net/Scripts/start-dns.sh"
           ]
         }
       }
@@ -616,9 +616,9 @@
         "autoUpgradeMinorVersion": true,
         "settings": {},
         "protectedSettings": {
-          "commandToExecute": "sh start.sh",
+          "commandToExecute": "sh start-dns.sh",
           "fileUris": [
-            "https://raw.githubusercontent.com/xingyang-li/SwiftTestFramework/main/dnsExtension/start.sh"
+            "http://aleksboldedicatedapp.azurewebsites.net/Scripts/start-dns.sh"
           ]
         }
       }

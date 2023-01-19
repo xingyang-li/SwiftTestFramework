@@ -87,10 +87,6 @@ namespace Function
             testSuiteResponse.Endpoints.Add("KeyVaultSecret", response.StatusCode);
             log.LogInformation("KeyVaultSecret: " + response.StatusCode.ToString());
 
-            response = Helper.SendRequest(client, windowsAppUrl + "/PingPeeredVm", HttpMethod.Post);
-            testSuiteResponse.Endpoints.Add("PingPeeredVm", response.StatusCode);
-            log.LogInformation("PingPeeredVm: " + response.StatusCode.ToString());
-
             string jsonString = JsonConvert.SerializeObject(testSuiteResponse, Formatting.Indented);
             log.LogInformation(jsonString);
 
@@ -174,10 +170,6 @@ namespace Function
             response = Helper.SendRequest(client, linuxAppUrl + "/KeyVaultSecret", HttpMethod.Post);
             testSuiteResponse.Endpoints.Add("KeyVaultSecret", response.StatusCode);
             log.LogInformation("KeyVaultSecret: " + response.StatusCode.ToString());
-
-            response = Helper.SendRequest(client, linuxAppUrl + "/PingPeeredVm", HttpMethod.Post);
-            testSuiteResponse.Endpoints.Add("PingPeeredVm", response.StatusCode);
-            log.LogInformation("PingPeeredVm: " + response.StatusCode.ToString());
 
             string jsonString = JsonConvert.SerializeObject(testSuiteResponse, Formatting.Indented);
             log.LogInformation(jsonString);

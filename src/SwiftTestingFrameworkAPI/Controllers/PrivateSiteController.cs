@@ -14,6 +14,8 @@ namespace SwiftTestingFrameworkAPI.Controllers
 
         private const string TestName = "PrivateSite";
 
+        static readonly HttpClient client = new HttpClient();
+
         public PrivateSiteController(ILogger<PrivateSiteController> logger)
         {
             _logger = logger;
@@ -36,6 +38,13 @@ namespace SwiftTestingFrameworkAPI.Controllers
 
             try
             {
+                HttpResponseMessage response = Helper.SendRequest(client, "http://" + siteHostname, HttpMethod.Get);
+                if (!response.IsSuccessStatusCode)
+                {
+                    testResponse = new TestResponse(Constants.ApiVersion, TestName, "Failure", "Http request failed", response.Content.ReadAsStringAsync().Result);
+                    return StatusCode(555, testResponse);
+                }
+
                 if (OperatingSystem.IsWindows())
                 {
                     p = Helper.StartProcess("nameresolver.exe", siteHostname + " " + Constants.AzureDNS);

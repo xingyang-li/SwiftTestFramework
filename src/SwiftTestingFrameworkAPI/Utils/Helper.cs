@@ -88,5 +88,21 @@ namespace SwiftTestingFrameworkAPI.Utils
 
             return queryResult;
         }
+
+        public static HttpResponseMessage SendRequest(HttpClient client, string url, HttpMethod method)
+        {
+            try
+            {
+                HttpRequestMessage request = new HttpRequestMessage(method, url);
+                HttpResponseMessage response = client.SendAsync(request).Result;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                HttpResponseMessage responseMessage = new HttpResponseMessage(System.Net.HttpStatusCode.NotFound);
+                responseMessage.Content = new StringContent(ex.Message);
+                return responseMessage;
+            }
+        }
     }
 }

@@ -1,12 +1,15 @@
-var builder = WebApplication.CreateBuilder(args);
+using System.Net.Sockets;
+using System.Net;
+using SwiftTestingFrameworkAPI;
 
-// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Host.ConfigureServices((_, services) =>
+        services.AddHostedService<LifetimeService>());
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

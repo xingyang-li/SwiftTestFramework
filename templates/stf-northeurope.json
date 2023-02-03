@@ -893,7 +893,7 @@
         "tier": "PremiumV2",
         "size": "P1v2",
         "family": "Pv2",
-        "capacity": 1
+        "capacity": 2
       },
       "kind": "app",
       "properties": {
@@ -901,10 +901,10 @@
         "workerSize": "Default",
         "workerSizeId": 0,
         "workerTierName": null,
-        "numberOfWorkers": 1,
+        "numberOfWorkers": 2,
         "currentWorkerSize": "Default",
         "currentWorkerSizeId": 0,
-        "currentNumberOfWorkers": 1,
+        "currentNumberOfWorkers": 2,
         "kind": "app"
       }
     },
@@ -918,7 +918,7 @@
         "tier": "PremiumV2",
         "size": "P1v2",
         "family": "Pv2",
-        "capacity": 1
+        "capacity": 2
       },
       "kind": "app,linux",
       "properties": {
@@ -926,10 +926,10 @@
         "workerSize": "Default",
         "workerSizeId": 0,
         "workerTierName": null,
-        "numberOfWorkers": 1,
+        "numberOfWorkers": 2,
         "currentWorkerSize": "Default",
         "currentWorkerSizeId": 0,
-        "currentNumberOfWorkers": 1
+        "currentNumberOfWorkers": 2
       }
     },
     {
@@ -1008,6 +1008,7 @@
           "http20Enabled": false,
           "functionAppScaleLimit": 0,
           "minimumElasticInstanceCount": 1,
+          "vnetPrivatePortsCount": 1,
           "connectionStrings": [
             {
               "name": "Storage",
@@ -1074,6 +1075,7 @@
           "http20Enabled": false,
           "functionAppScaleLimit": 0,
           "minimumElasticInstanceCount": 0,
+          "vnetPrivatePortsCount": 1,
           "connectionStrings": [
             {
               "name": "Storage",

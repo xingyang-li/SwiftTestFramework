@@ -91,6 +91,10 @@ namespace Function
             testSuiteResponse.Endpoints.Add("PingPeeredVm", response.StatusCode);
             log.LogInformation("PingPeeredVm: " + response.StatusCode.ToString());
 
+            response = Helper.SendRequest(client, windowsAppUrl + "/PrivatePort", HttpMethod.Post);
+            testSuiteResponse.Endpoints.Add("PrivatePort", response.StatusCode);
+            log.LogInformation("PrivatePort: " + response.StatusCode.ToString());
+
             string jsonString = JsonConvert.SerializeObject(testSuiteResponse, Formatting.Indented);
             log.LogInformation(jsonString);
 

@@ -37,7 +37,7 @@ namespace SwiftTestingFrameworkAPI
         private void OnStarted()
         {
             // Add services to the container.
-             listenSocket = new Socket(AddressFamily.InterNetwork,
+            listenSocket = new Socket(AddressFamily.InterNetwork,
                                                  SocketType.Stream,
                                                  ProtocolType.Tcp);
 

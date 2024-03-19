@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using SwiftTestingFrameworkAPI.Utils;
 using System;
+using System.Net.Sockets;
+using System.Net;
+using System.Text;
 
 namespace SwiftTestingFrameworkAPI.Controllers
 {
@@ -38,21 +41,42 @@ namespace SwiftTestingFrameworkAPI.Controllers
 
             string stringAddr = Environment.GetEnvironmentVariable("WEBSITE_PRIVATE_IP") ?? string.Empty;
             string stringPort = Environment.GetEnvironmentVariable("WEBSITE_PRIVATE_PORTS") ?? string.Empty;
+            IPAddress hostIP = IPAddress.Parse(stringAddr);
+            IPEndPoint ep = new IPEndPoint(hostIP.Address, Int32.Parse(stringPort));
 
             try
             {
-                p = Helper.StartProcess("tcpping.exe", stringAddr + ":" + stringPort);
+                using Socket client = new (
+                    ep.AddressFamily,
+                    SocketType.Stream,
+                    ProtocolType.Tcp
+                );
 
-                if (p.ExitCode == 0)
+                client.Connect(ep);
+                while (true)
                 {
-                    testResponse = new TestResponse(Constants.ApiVersion, TestName, "Success", p.StdOutput, string.Empty);
-                    return StatusCode(200, testResponse);
+                    // Send message.
+                    var message = "Hello world! <|EOM|>";
+                    var messageBytes = Encoding.UTF8.GetBytes(message);
+                    client.Send(messageBytes, SocketFlags.None);
+                    Console.WriteLine($"Socket client sent message: \"{message}\"");
+
+                    // Receive ack.
+                    var buffer = new byte[1_024];
+                    var received = client.Receive(buffer, SocketFlags.None);
+                    var response = Encoding.UTF8.GetString(buffer, 0, received);
+                    if (response == "<|ACK|>")
+                    {
+                        Console.WriteLine(
+                            $"Socket client received acknowledgment: \"{response}\"");
+                        break;
+                    }
                 }
-                else
-                {
-                    testResponse = new TestResponse(Constants.ApiVersion, TestName, "Failure", string.Empty, p.StdError);
-                    return StatusCode(555, testResponse);
-                }
+
+                client.Shutdown(SocketShutdown.Both);
+
+                testResponse = new TestResponse(Constants.ApiVersion, TestName, "Success", "Message Sent", string.Empty);
+                return StatusCode(200, testResponse);
             }
             catch (Exception ex)
             {

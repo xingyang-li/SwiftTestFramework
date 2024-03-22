@@ -61,7 +61,7 @@ jobs:
         azcliversion: 2.30.0
         inlineScript: |
           chmod +x $GITHUB_WORKSPACE/deploy.sh
-          $GITHUB_WORKSPACE/deploy.sh stf-${{ matrix.location }} ${{ matrix.location }}
+          $GITHUB_WORKSPACE/deploy.sh stf-${{ matrix.location }} ${{ matrix.location }} templates/stf-prod.json
 
   build-api-app:
     needs: get-locations

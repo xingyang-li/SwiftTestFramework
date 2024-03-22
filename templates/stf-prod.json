@@ -15,18 +15,6 @@
         "description": "Specifies the location for all resources."
       }
     },
-    "adminUsername": {
-      "type": "string",
-      "metadata": {
-        "description": "Specifies a username for the Virtual Machine."
-      }
-    },
-    "adminPublicKey": {
-      "type": "string",
-      "metadata": {
-        "description": "Specifies the SSH rsa public key file as a string. Use \"ssh-keygen -t rsa -b 2048\" to generate your SSH key pairs."
-      }
-    },
     "vmSize": {
       "type": "string",
       "defaultValue": "Standard_D2s_v3",
@@ -47,6 +35,8 @@
     "windowsAppSubnetPrefix": "10.0.1.0/24",
     "linuxAppSubnetPrefix": "10.0.2.0/24",
     "vmName": "[concat(parameters('projectName'), '-vm')]",
+    "adminUsername": "stfadmin",
+    "adminPassword": "iis6!dfu",
     "peeredVmName": "peered-vm",
     "functionAppName": "[concat(parameters('projectName'), '-functionapp')]",
     "privateAppName": "[concat(parameters('projectName'), '-privateapp')]",
@@ -68,15 +58,20 @@
     "storageAccountName": "[concat(replace(parameters('projectName'), '-', ''), 'stor')]",
     "funcStorageAccountName": "[concat(replace(parameters('projectName'), '-', ''), 'fstor')]",
     "keyVaultName": "[concat(parameters('projectName'), '-vault')]",
-    "secretName": "secret1",
-    "secretValue": "secretValue",
-    "secretResourceId": "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('secretName'))]",
+    "secret1Name": "secret1",
+    "secret1Value": "secretValue",
+    "storageKeySecretName": "storageKey",
+    "secret1ResourceId": "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('secret1Name'))]",
+    "storageKeySecretResourceId": "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('storageKeySecretName'))]",
     "storagePrivateEndpointConnName": "[concat(parameters('projectName'), '-stor-pe')]",
     "sitePrivateEndpointConnName": "[concat(parameters('projectName'), '-site-pe')]",
+    "filePrivateEndpointConnName": "[concat(parameters('projectName'), '-file-pe')]",
     "blobPrivateZoneName": "privatelink.blob.core.windows.net",
     "sitePrivateZoneName": "privatelink.azurewebsites.net",
+    "filePrivateZoneName": "privatelink.file.core.windows.net",
     "administratorLogin": "swiftadmin",
-    "administratorLoginPassword": "iis6!dfu"
+    "administratorLoginPassword": "iis6!dfu",
+    "mountPath": "/mounts/remote"
   },
   "resources": [
     {
@@ -493,18 +488,8 @@
         },
         "osProfile": {
           "computerName": "[variables('vmName')]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "linuxConfiguration": {
-            "disablePasswordAuthentication": true,
-            "ssh": {
-              "publicKeys": [
-                {
-                  "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
-                  "keyData": "[parameters('adminPublicKey')]"
-                }
-              ]
-            }
-          }
+          "adminUsername": "[variables('adminUsername')]",
+          "adminPassword": "[variables('adminPassword')]"
         },
         "storageProfile": {
           "imageReference": {
@@ -565,18 +550,8 @@
         },
         "osProfile": {
           "computerName": "[variables('peeredVmName')]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "linuxConfiguration": {
-            "disablePasswordAuthentication": true,
-            "ssh": {
-              "publicKeys": [
-                {
-                  "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
-                  "keyData": "[parameters('adminPublicKey')]"
-                }
-              ]
-            }
-          }
+          "adminUsername": "[variables('adminUsername')]",
+          "adminPassword": "[variables('adminPassword')]"
         },
         "storageProfile": {
           "imageReference": {
@@ -657,6 +632,21 @@
       }
     },
     {
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2018-09-01",
+      "name": "[variables('filePrivateZoneName')]",
+      "location": "global",
+      "properties": {
+        "maxNumberOfRecordSets": 25000,
+        "maxNumberOfVirtualNetworkLinks": 1000,
+        "maxNumberOfVirtualNetworkLinksWithRegistration": 100,
+        "numberOfRecordSets": 3,
+        "numberOfVirtualNetworkLinks": 0,
+        "numberOfVirtualNetworkLinksWithRegistration": 0,
+        "provisioningState": "Succeeded"
+      }
+    },
+    {
       "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
       "apiVersion": "2018-09-01",
       "name": "[concat(variables('blobPrivateZoneName'), '/n33a3tkelqvqk')]",
@@ -679,6 +669,22 @@
       "location": "global",
       "dependsOn": [
         "[resourceId('Microsoft.Network/privateDnsZones', variables('sitePrivateZoneName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]"
+      ],
+      "properties": {
+        "registrationEnabled": false,
+        "virtualNetwork": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "2018-09-01",
+      "name": "[concat(variables('filePrivateZoneName'), '/n33a3tkelqvqk')]",
+      "location": "global",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateDnsZones', variables('filePrivateZoneName'))]",
         "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]"
       ],
       "properties": {
@@ -753,6 +759,37 @@
       }
     },
     {
+      "type": "Microsoft.Network/privateEndpoints",
+      "apiVersion": "2020-11-01",
+      "name": "[variables('filePrivateEndpointConnName')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vNetName'))]"
+      ],
+      "location": "[parameters('location')]",
+      "properties": {
+        "privateLinkServiceConnections": [
+          {
+            "name": "[variables('filePrivateEndpointConnName')]",
+            "properties": {
+              "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+              "groupIds": [
+                "file"
+              ],
+              "privateLinkServiceConnectionState": {
+                "status": "Approved",
+                "description": "Auto-Approved",
+                "actionsRequired": "None"
+              }
+            }
+          }
+        ],
+        "subnet": {
+          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vNetName'), variables('vNetSubnetName'))]"
+        }
+      }
+    },
+    {
       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
       "apiVersion": "2020-11-01",
       "name": "[concat(variables('storagePrivateEndpointConnName'), '/default')]",
@@ -789,6 +826,24 @@
       }
     },
     {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2020-11-01",
+      "name": "[concat(variables('filePrivateEndpointConnName'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateEndpoints', variables('filePrivateEndpointConnName'))]"
+      ],
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "privatelink-file-core-windows-net",
+            "properties": {
+              "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('filePrivateZoneName'))]"
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "[variables('storageAccountName')]",
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2021-04-01",
@@ -799,12 +854,37 @@
       "kind": "StorageV2",
       "properties": {
         "publicNetworkAccess": "Disabled",
-        "allowBlobPublicAccess": false
+        "allowBlobPublicAccess": false,
+        "networkAcls": {
+          "defaultAction": "Deny",
+          "bypass": "AzureServices"
+        }
       },
       "sku": {
-        "name": "Premium_LRS",
-        "tier": "Premium"
+        "name": "Standard_LRS"
       }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+      "apiVersion": "2023-01-01",
+      "name": "[format('{0}/default/{1}', variables('storageAccountName'), 'windows')]",
+      "properties": {
+        "enabledProtocols": "SMB"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+      "apiVersion": "2023-01-01",
+      "name": "[format('{0}/default/{1}', variables('storageAccountName'), 'linux')]",
+      "properties": {
+        "enabledProtocols": "SMB"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ]
     },
     {
       "name": "[variables('funcStorageAccountName')]",
@@ -875,12 +955,24 @@
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2021-11-01-preview",
-      "name": "[format('{0}/{1}', variables('keyVaultName'), variables('secretName'))]",
+      "name": "[format('{0}/{1}', variables('keyVaultName'), variables('secret1Name'))]",
       "properties": {
-        "value": "[variables('secretValue')]"
+        "value": "[variables('secret1Value')]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2021-11-01-preview",
+      "name": "[format('{0}/{1}', variables('keyVaultName'), variables('storageKeySecretName'))]",
+      "properties": {
+        "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2018-11-01').keys[0].value]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     },
     {
@@ -1036,13 +1128,39 @@
           "type": "config",
           "apiVersion": "2018-11-01",
           "properties": {
-            "secret1": "[concat('@Microsoft.KeyVault(SecretUri=', reference(variables('secretResourceId')).secretUriWithVersion, ')')]",
+            "secret1": "[concat('@Microsoft.KeyVault(SecretUri=', reference(variables('secret1ResourceId')).secretUriWithVersion, ')')]",
+            "storageKeySecret": "[concat('@Microsoft.KeyVault(SecretUri=', reference(variables('storageKeySecretResourceId')).secretUriWithVersion, ')')]",
+            "WEBSITE_DNS_SERVER": "168.63.129.16",
             "WEBSITE_VNET_ROUTE_ALL": "1",
+            "WEBSITE_CONTENTOVERVNET": "1",
+            "WEBSITE_CONTENTSHARE": "windows",
+            "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1)]",
             "ResourceGroup": "[parameters('projectName')]"
           },
           "dependsOn": [
             "[resourceId('Microsoft.Web/Sites', variables('windowsAppName'))]",
-            "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('secretName'))]"
+            "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('secret1Name'))]",
+            "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('storageKeySecretName'))]",
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+          ]
+        },
+        {
+          "name": "azurestorageaccounts",
+          "type": "config",
+          "apiVersion": "2022-09-01",
+          "properties": {
+            "remote": {
+              "type": "AzureFiles",
+              "accountName": "[variables('storageAccountName')]",
+              "shareName": "windows",
+              "mountPath": "[variables('mountPath')]",
+              "accessKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2018-11-01').keys[0].value]"
+            }
+          },
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('windowsAppName'))]",
+            "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('storageKeySecretName'))]",
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
           ]
         }
       ]
@@ -1082,7 +1200,16 @@
               "connectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1)]",
               "type": "Custom"
             }
-          ]
+          ],
+          "azureStorageAccounts": {
+            "remote": {
+              "mountPath": "[variables('mountPath')]",
+              "accountName": "[variables('storageAccountName')]",
+              "type": "AzureFiles",
+              "shareName": "linux",
+              "accessKey": "listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1)"
+            }
+          }
         },
         "scmSiteAlsoStopped": false,
         "clientAffinityEnabled": false,
@@ -1103,13 +1230,39 @@
           "type": "config",
           "apiVersion": "2018-11-01",
           "properties": {
-            "secret1": "[concat('@Microsoft.KeyVault(SecretUri=', reference(variables('secretResourceId')).secretUriWithVersion, ')')]",
+            "secret1": "[concat('@Microsoft.KeyVault(SecretUri=', reference(variables('secret1ResourceId')).secretUriWithVersion, ')')]",
+            "storageKeySecret": "[concat('@Microsoft.KeyVault(SecretUri=', reference(variables('storageKeySecretResourceId')).secretUriWithVersion, ')')]",
             "WEBSITE_VNET_ROUTE_ALL": "1",
+            "WEBSITE_DNS_SERVER": "168.63.129.16",
+            "WEBSITE_CONTENTOVERVNET": "1",
+            "WEBSITE_CONTENTSHARE": "windows",
+            "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1)]",
             "ResourceGroup": "[parameters('projectName')]"
           },
           "dependsOn": [
             "[resourceId('Microsoft.Web/Sites', variables('linuxAppName'))]",
-            "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('secretName'))]"
+            "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('secret1Name'))]",
+            "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('storageKeySecretName'))]",
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+          ]
+        },
+        {
+          "name": "azurestorageaccounts",
+          "type": "config",
+          "apiVersion": "2022-09-01",
+          "properties": {
+            "remote": {
+              "type": "AzureFiles",
+              "accountName": "[variables('storageAccountName')]",
+              "shareName": "linux",
+              "mountPath": "[variables('mountPath')]",
+              "accessKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2018-11-01').keys[0].value]"
+            }
+          },
+          "dependsOn": [
+            "[resourceId('Microsoft.Web/Sites', variables('linuxAppName'))]",
+            "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('storageKeySecretName'))]",
+            "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
           ]
         }
       ]
@@ -1153,19 +1306,6 @@
       }
     },
     {
-      "type": "microsoft.insights/components",
-      "apiVersion": "2020-02-02",
-      "name": "[variables('applicationInsightsName')]",
-      "location": "[parameters('location')]",
-      "tags": {
-        "[concat('hidden-link:', resourceId('Microsoft.Web/sites', variables('applicationInsightsName')))]": "Resource"
-      },
-      "properties": {
-        "Application_Type": "web"
-      },
-      "kind": "web"
-    },
-    {
       "type": "Microsoft.Web/sites",
       "apiVersion": "2021-02-01",
       "name": "[variables('functionAppName')]",
@@ -1173,18 +1313,13 @@
       "kind": "functionapp",
       "dependsOn": [
         "[resourceId('Microsoft.Web/serverfarms', variables('funcAppServicePlanName'))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', variables('funcStorageAccountName'))]",
-        "[resourceId('Microsoft.Insights/components', variables('applicationInsightsName'))]"
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('funcStorageAccountName'))]"
       ],
       "properties": {
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('funcAppServicePlanName'))]",
         "siteConfig": {
           "alwaysOn": true,
           "appSettings": [
-            {
-              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-              "value": "[reference(resourceId('microsoft.insights/components', variables('applicationInsightsName')), '2015-05-01').InstrumentationKey]"
-            },
             {
               "name": "AzureWebJobsStorage",
               "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('funcStorageAccountName'), ';EndpointSuffix=', environment().suffixes.storage, ';AccountKey=',listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('funcStorageAccountName')), '2019-06-01').keys[0].value)]"

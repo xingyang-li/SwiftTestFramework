@@ -15,18 +15,6 @@
         "description": "Specifies the location for all resources."
       }
     },
-    "adminUsername": {
-      "type": "string",
-      "metadata": {
-        "description": "Specifies a username for the Virtual Machine."
-      }
-    },
-    "adminPublicKey": {
-      "type": "string",
-      "metadata": {
-        "description": "Specifies the SSH rsa public key file as a string. Use \"ssh-keygen -t rsa -b 2048\" to generate your SSH key pairs."
-      }
-    },
     "vmSize": {
       "type": "string",
       "defaultValue": "Standard_D2s_v3",
@@ -47,6 +35,8 @@
     "windowsAppSubnetPrefix": "10.0.1.0/24",
     "linuxAppSubnetPrefix": "10.0.2.0/24",
     "vmName": "[concat(parameters('projectName'), '-vm')]",
+    "adminUsername": "stfadmin",
+    "adminPassword":  "iis6!dfu",
     "peeredVmName": "peered-vm",
     "functionAppName": "[concat(parameters('projectName'), '-functionapp')]",
     "privateAppName": "[concat(parameters('projectName'), '-privateapp')]",
@@ -498,18 +488,8 @@
         },
         "osProfile": {
           "computerName": "[variables('vmName')]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "linuxConfiguration": {
-            "disablePasswordAuthentication": true,
-            "ssh": {
-              "publicKeys": [
-                {
-                  "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
-                  "keyData": "[parameters('adminPublicKey')]"
-                }
-              ]
-            }
-          }
+          "adminUsername": "[variables('adminUsername')]",
+          "adminPassword":  "[variables('adminPassword')]"
         },
         "storageProfile": {
           "imageReference": {
@@ -570,18 +550,8 @@
         },
         "osProfile": {
           "computerName": "[variables('peeredVmName')]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "linuxConfiguration": {
-            "disablePasswordAuthentication": true,
-            "ssh": {
-              "publicKeys": [
-                {
-                  "path": "[concat('/home/', parameters('adminUsername'), '/.ssh/authorized_keys')]",
-                  "keyData": "[parameters('adminPublicKey')]"
-                }
-              ]
-            }
-          }
+          "adminUsername": "[variables('adminUsername')]",
+          "adminPassword":  "[variables('adminPassword')]"
         },
         "storageProfile": {
           "imageReference": {

@@ -19,7 +19,7 @@ To introduce changes to the framework and set up local testing, please follow th
 4. Get access to the "WAWS Swift Test" Azure subscription. (Needed to test ARM template changes)
 
 
-### Manipulating Azure Resources
+### Creating Azure Resources
 
 There is a resource group deployed to every region defined in `location_matrix.json`. To extend this framework to another region, add the desired region name to this file. 
 
@@ -28,17 +28,17 @@ The ARM templates that define the resources are located in the `templates` folde
 To locally test ARM template changes, you can deploy resources to Azure using Azure Powershell.
 
 1. Open Powershell and login to Azure with: `az login`
-2. Set your subscription to the 'WAWS Swift Test': `Az-SetContext {WAWS Swift Test Subscription ID}` (You may need to run `az account set --subscription {WAWS Swift Test Subscription ID}` instead if Azure CLI is already set up for your Powershell instead of Azure Powershell.)
+2. Set your subscription to the 'WAWS Swift Test': `az account set --subscription {WAWS Swift Test Subscription ID}` (You may need to run `Az-SetContext {WAWS Swift Test Subscription ID}` instead if Azure Powershell is already set up for your Powershell instead of Azure CLI.)
 3. Add ARM template changes to `templates\stf-test.json` file.
-4. Run: `.\deploy.ps1 -projectName {resource group name} -location {desired location}`
+4. Run: `.\deploy.ps1 -projectName {resource group name} -location {desired location} -templateFile .\templates\stf-test.json`
 5. Navigate to the specified resource group in the Azure portal to verify that the deployment succeeded.
+6. Copy over all contents from stf-test.json to stf-prod.json once you have tested the deployment so that the Github Actions workflow will deploy your changes across all regions once the changes have been checked in.
 
-
-### Adding API Changes
+### Adding API Controller
 
 Each resource group contains canary web apps that will host an API app to connect/interact with other resources in the group. The code for these apps is located under `src\SwiftTestingFrameworkAPI`.
 
-The app is an ASP.NET Core web API project, and you will need to make a new API endpoint for each new feature/test you would like to add to the framework. 
+The app is an ASP.NET Core web API project, and you will need to make a new API controller for each new feature/test you would like to add to the framework. 
 
 This is a good resource for developing ASP.NET Core API code: [https://learn.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-6.0](https://learn.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-6.0)
 

@@ -95,6 +95,10 @@ namespace Function
             testSuiteResponse.Endpoints.Add("PrivatePort", response.StatusCode);
             log.LogInformation("PrivatePort: " + response.StatusCode.ToString());
 
+            response = Helper.SendRequest(client, windowsAppUrl + "/FileShare", HttpMethod.Post);
+            testSuiteResponse.Endpoints.Add("FileShare", response.StatusCode);
+            log.LogInformation("FileShare: " + response.StatusCode.ToString());
+
             string jsonString = JsonConvert.SerializeObject(testSuiteResponse, Formatting.Indented);
             log.LogInformation(jsonString);
 
@@ -182,6 +186,10 @@ namespace Function
             response = Helper.SendRequest(client, linuxAppUrl + "/PingPeeredVm", HttpMethod.Post);
             testSuiteResponse.Endpoints.Add("PingPeeredVm", response.StatusCode);
             log.LogInformation("PingPeeredVm: " + response.StatusCode.ToString());
+
+            response = Helper.SendRequest(client, linuxAppUrl + "/FileShare", HttpMethod.Post);
+            testSuiteResponse.Endpoints.Add("FileShare", response.StatusCode);
+            log.LogInformation("FileShare: " + response.StatusCode.ToString());
 
             string jsonString = JsonConvert.SerializeObject(testSuiteResponse, Formatting.Indented);
             log.LogInformation(jsonString);

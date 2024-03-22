@@ -68,9 +68,11 @@
     "storageAccountName": "[concat(replace(parameters('projectName'), '-', ''), 'stor')]",
     "funcStorageAccountName": "[concat(replace(parameters('projectName'), '-', ''), 'fstor')]",
     "keyVaultName": "[concat(parameters('projectName'), '-vault')]",
-    "secretName": "secret1",
-    "secretValue": "secretValue",
-    "secretResourceId": "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('secretName'))]",
+    "secret1Name": "secret1",
+    "secret1Value": "secretValue",
+    "storageKeySecretName": "storageKey",
+    "secret1ResourceId": "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('secret1Name'))]",
+    "storageKeySecretResourceId": "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('storageKeySecretName'))]",
     "storagePrivateEndpointConnName": "[concat(parameters('projectName'), '-stor-pe')]",
     "sitePrivateEndpointConnName": "[concat(parameters('projectName'), '-site-pe')]",
     "blobPrivateZoneName": "privatelink.blob.core.windows.net",
@@ -875,12 +877,24 @@
     {
       "type": "Microsoft.KeyVault/vaults/secrets",
       "apiVersion": "2021-11-01-preview",
-      "name": "[format('{0}/{1}', variables('keyVaultName'), variables('secretName'))]",
+      "name": "[format('{0}/{1}', variables('keyVaultName'), variables('secret1Name'))]",
       "properties": {
-        "value": "[variables('secretValue')]"
+        "value": "[variables('secret1Value')]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/secrets",
+      "apiVersion": "2021-11-01-preview",
+      "name": "[format('{0}/{1}', variables('keyVaultName'), variables('storageKeySecretName'))]",
+      "properties": {
+        "value": "listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1)"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
       ]
     },
     {
@@ -1036,13 +1050,14 @@
           "type": "config",
           "apiVersion": "2018-11-01",
           "properties": {
-            "secret1": "[concat('@Microsoft.KeyVault(SecretUri=', reference(variables('secretResourceId')).secretUriWithVersion, ')')]",
+            "secret1": "[concat('@Microsoft.KeyVault(SecretUri=', reference(variables('secret1ResourceId')).secretUriWithVersion, ')')]",
+            "storageKeySecret": "[concat('@Microsoft.KeyVault(SecretUri=', reference(variables('storageKeySecretResourceId')).secretUriWithVersion, ')')]",
             "WEBSITE_VNET_ROUTE_ALL": "1",
             "ResourceGroup": "[parameters('projectName')]"
           },
           "dependsOn": [
             "[resourceId('Microsoft.Web/Sites', variables('windowsAppName'))]",
-            "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('secretName'))]"
+            "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('secret1Name'))]"
           ]
         }
       ]
@@ -1103,13 +1118,14 @@
           "type": "config",
           "apiVersion": "2018-11-01",
           "properties": {
-            "secret1": "[concat('@Microsoft.KeyVault(SecretUri=', reference(variables('secretResourceId')).secretUriWithVersion, ')')]",
+            "secret1": "[concat('@Microsoft.KeyVault(SecretUri=', reference(variables('secret1ResourceId')).secretUriWithVersion, ')')]",
+            "storageKeySecret": "[concat('@Microsoft.KeyVault(SecretUri=', reference(variables('storageKeySecretResourceId')).secretUriWithVersion, ')')]",
             "WEBSITE_VNET_ROUTE_ALL": "1",
             "ResourceGroup": "[parameters('projectName')]"
           },
           "dependsOn": [
             "[resourceId('Microsoft.Web/Sites', variables('linuxAppName'))]",
-            "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('secretName'))]"
+            "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyvaultName'), variables('secret1Name'))]"
           ]
         }
       ]

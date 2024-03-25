@@ -36,7 +36,7 @@
     "linuxAppSubnetPrefix": "10.0.2.0/24",
     "vmName": "[concat(parameters('projectName'), '-vm')]",
     "adminUsername": "stfadmin",
-    "adminPassword":  "iis6!dfu",
+    "adminPassword": "iis6!dfu",
     "peeredVmName": "peered-vm",
     "functionAppName": "[concat(parameters('projectName'), '-functionapp')]",
     "privateAppName": "[concat(parameters('projectName'), '-privateapp')]",
@@ -489,7 +489,7 @@
         "osProfile": {
           "computerName": "[variables('vmName')]",
           "adminUsername": "[variables('adminUsername')]",
-          "adminPassword":  "[variables('adminPassword')]"
+          "adminPassword": "[variables('adminPassword')]"
         },
         "storageProfile": {
           "imageReference": {
@@ -551,7 +551,7 @@
         "osProfile": {
           "computerName": "[variables('peeredVmName')]",
           "adminUsername": "[variables('adminUsername')]",
-          "adminPassword":  "[variables('adminPassword')]"
+          "adminPassword": "[variables('adminPassword')]"
         },
         "storageProfile": {
           "imageReference": {
@@ -1130,10 +1130,10 @@
           "properties": {
             "secret1": "[concat('@Microsoft.KeyVault(SecretUri=', reference(variables('secret1ResourceId')).secretUriWithVersion, ')')]",
             "storageKeySecret": "[concat('@Microsoft.KeyVault(SecretUri=', reference(variables('storageKeySecretResourceId')).secretUriWithVersion, ')')]",
-            "WEBSITE_DNS_SERVER":  "168.63.129.16",
+            "WEBSITE_DNS_SERVER": "168.63.129.16",
             "WEBSITE_VNET_ROUTE_ALL": "1",
             "WEBSITE_CONTENTOVERVNET": "1",
-            "WEBSITE_CONTENTSHARE":  "windows",
+            "WEBSITE_CONTENTSHARE": "windows",
             "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1)]",
             "ResourceGroup": "[parameters('projectName')]"
           },
@@ -1164,6 +1164,30 @@
           ]
         }
       ]
+    },
+    {
+      "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+      "apiVersion": "2023-01-01",
+      "name": "[concat(variables('windowsAppName'), '/scm')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('windowsAppName'))]"
+      ],
+      "properties": {
+        "allow": true
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+      "apiVersion": "2023-01-01",
+      "name": "[concat(variables('windowsAppName'), '/ftp')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('windowsAppName'))]"
+      ],
+      "properties": {
+        "allow": true
+      }
     },
     {
       "type": "Microsoft.Web/sites",
@@ -1266,6 +1290,30 @@
           ]
         }
       ]
+    },
+    {
+      "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+      "apiVersion": "2023-01-01",
+      "name": "[concat(variables('linuxAppName'), '/scm')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('linuxAppName'))]"
+      ],
+      "properties": {
+        "allow": true
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+      "apiVersion": "2023-01-01",
+      "name": "[concat(variables('linuxAppName'), '/ftp')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('linuxAppName'))]"
+      ],
+      "properties": {
+        "allow": true
+      }
     },
     {
       "type": "Microsoft.Web/sites",

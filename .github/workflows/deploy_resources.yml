@@ -145,33 +145,18 @@ jobs:
         name: function-app
         path: function-app
 
-    - name: Run Azure PowerShell script
-      uses: azure/powershell@v1
-      id: getPublishProfile
-      with:
-        inlineScript: |
-          $publish_profile_winapp=Get-AzWebAppPublishingProfile -ResourceGroupName stf-${{ matrix.location }} -Name "stf-${{ matrix.location }}-winapp"
-          $publish_profile_linuxapp=Get-AzWebAppPublishingProfile -ResourceGroupName stf-${{ matrix.location }} -Name "stf-${{ matrix.location }}-linuxapp"
-          $publish_profile_functionapp=Get-AzWebAppPublishingProfile -ResourceGroupName stf-${{ matrix.location }} -Name "stf-${{ matrix.location }}-functionapp"
-          echo "publish_profile_winapp=$($publish_profile_winapp)" >> $GITHUB_OUTPUT
-          echo "publish_profile_linuxapp=$($publish_profile_linuxapp)" >> $GITHUB_OUTPUT
-          echo "publish_profile_functionapp=$( $publish_profile_functionapp)" >> $GITHUB_OUTPUT
-        azPSVersion: "latest"
-
     - name: Deploy to Azure Windows Web App
       id: deploy-to-windows-webapp
-      uses: azure/webapps-deploy@v2
+      uses: azure/webapps-deploy@v3
       with:
         app-name: stf-${{ matrix.location }}-winapp
-        publish-profile: ${{ steps.getPublishProfile.outputs.publish_profile_winapp }}
         package: api-app
     
     - name: Deploy to Azure Linux Web App
       id: deploy-to-linux-webapp
-      uses: azure/webapps-deploy@v2
+      uses: azure/webapps-deploy@v3
       with:
         app-name: stf-${{ matrix.location }}-linuxapp
-        publish-profile: ${{ steps.getPublishProfile.outputs.publish_profile_linuxapp }}
         package: api-app
 
     - name: Deploy to Azure Functions App
@@ -179,5 +164,4 @@ jobs:
       uses: Azure/functions-action@v1
       with:
         app-name: stf-${{ matrix.location }}-functionapp
-        publish-profile: ${{ steps.getPublishProfile.outputs.publish_profile_functionapp }}
         package: function-app

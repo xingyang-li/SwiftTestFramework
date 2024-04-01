@@ -6,6 +6,7 @@
     "centraluseuap",
     "westeurope",
     "northeurope",
-    "eastus"
+    "eastus",
+    "eastus2euap"
   ]
 }

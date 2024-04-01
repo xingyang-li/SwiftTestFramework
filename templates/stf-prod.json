@@ -1235,7 +1235,7 @@
             "WEBSITE_VNET_ROUTE_ALL": "1",
             "WEBSITE_DNS_SERVER": "168.63.129.16",
             "WEBSITE_CONTENTOVERVNET": "1",
-            "WEBSITE_CONTENTSHARE": "windows",
+            "WEBSITE_CONTENTSHARE": "linux",
             "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2015-05-01-preview').key1)]",
             "ResourceGroup": "[parameters('projectName')]"
           },

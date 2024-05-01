@@ -11,6 +11,10 @@ on:
   schedule:
     - cron: '0 */2 * * *'  # every 2 hours
 
+permissions:
+      id-token: write
+      contents: read
+
 concurrency: 
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

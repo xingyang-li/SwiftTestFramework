@@ -124,7 +124,7 @@ jobs:
   deploy:
     needs: [build-api-app, build-function-app, create-resources, get-locations]
     runs-on: ubuntu-latest
-    if: ${{ !failure()  && !cancelled()}}
+    if: ${{!cancelled()}}
     continue-on-error: true
     strategy:
       matrix: ${{ fromJson(needs.get-locations.outputs.matrix) }}

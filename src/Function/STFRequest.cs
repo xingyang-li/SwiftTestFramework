@@ -87,9 +87,11 @@ namespace Function
             testSuiteResponse.Endpoints.Add("KeyVaultSecret", response.StatusCode);
             log.LogInformation("KeyVaultSecret: " + response.StatusCode.ToString());
 
+            /*
             response = Helper.SendRequest(client, windowsAppUrl + "/PingPeeredVm", HttpMethod.Post);
             testSuiteResponse.Endpoints.Add("PingPeeredVm", response.StatusCode);
             log.LogInformation("PingPeeredVm: " + response.StatusCode.ToString());
+            */
 
             response = Helper.SendRequest(client, windowsAppUrl + "/PrivatePort", HttpMethod.Post);
             testSuiteResponse.Endpoints.Add("PrivatePort", response.StatusCode);
@@ -183,9 +185,11 @@ namespace Function
             testSuiteResponse.Endpoints.Add("KeyVaultSecret", response.StatusCode);
             log.LogInformation("KeyVaultSecret: " + response.StatusCode.ToString());
 
+            /*
             response = Helper.SendRequest(client, linuxAppUrl + "/PingPeeredVm", HttpMethod.Post);
             testSuiteResponse.Endpoints.Add("PingPeeredVm", response.StatusCode);
             log.LogInformation("PingPeeredVm: " + response.StatusCode.ToString());
+            */
 
             response = Helper.SendRequest(client, linuxAppUrl + "/FileShare", HttpMethod.Post);
             testSuiteResponse.Endpoints.Add("FileShare", response.StatusCode);

@@ -21,7 +21,7 @@ namespace SwiftTestingFrameworkAPI.Controllers
         [HttpGet]
         public TestResponse GetInfo()
         {
-            string testDetails = "Establishes a TCP connection with a public IPv6 address. (ipv6.google.com)";
+            string testDetails = "Sends a http request to a public IPv6 address. (https://ipv6.google.com)";
             return new TestResponse(Constants.ApiVersion, TestName, string.Empty, testDetails, string.Empty);
         }
 
@@ -33,14 +33,7 @@ namespace SwiftTestingFrameworkAPI.Controllers
             try
             {
  
-                if (OperatingSystem.IsWindows())
-                {
-                    p = Helper.StartProcess("tcpping.exe", Constants.PublicIpv6Endpoint);
-                }
-                else
-                {
-                    p = Helper.StartProcess("curl", $"--connect-timeout 5 {Constants.PublicIpv6Endpoint}");
-                }
+                p = Helper.StartProcess("curl", $"--connect-timeout 5 {Constants.PublicIpv6Endpoint}");
 
                 if (p.ExitCode == 0)
                 {

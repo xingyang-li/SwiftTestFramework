@@ -101,6 +101,10 @@ namespace Function
             testSuiteResponse.Endpoints.Add("FileShare", response.StatusCode);
             log.LogInformation("FileShare: " + response.StatusCode.ToString());
 
+            response = Helper.SendRequest(client, windowsAppUrl + "/Ipv6", HttpMethod.Post);
+            testSuiteResponse.Endpoints.Add("Ipv6", response.StatusCode);
+            log.LogInformation("Ipv6: " + response.StatusCode.ToString());
+
             string jsonString = JsonConvert.SerializeObject(testSuiteResponse, Formatting.Indented);
             log.LogInformation(jsonString);
 
@@ -194,6 +198,10 @@ namespace Function
             response = Helper.SendRequest(client, linuxAppUrl + "/FileShare", HttpMethod.Post);
             testSuiteResponse.Endpoints.Add("FileShare", response.StatusCode);
             log.LogInformation("FileShare: " + response.StatusCode.ToString());
+
+            response = Helper.SendRequest(client, linuxAppUrl + "/Ipv6", HttpMethod.Post);
+            testSuiteResponse.Endpoints.Add("Ipv6", response.StatusCode);
+            log.LogInformation("Ipv6: " + response.StatusCode.ToString());
 
             string jsonString = JsonConvert.SerializeObject(testSuiteResponse, Formatting.Indented);
             log.LogInformation(jsonString);

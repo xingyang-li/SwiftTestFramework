@@ -13,5 +13,7 @@
         public const string PrivateSiteHostname = "{0}-privateapp.azurewebsites.net";
         public const string PrivateSiteScmHostname = "{0}-privateapp.scm.azurewebsites.net";
         public const string MountFilePath = "/mounts/remote/testfile.txt";
+
+        public const string PublicIpv6Endpoint = "https://ipv6.google.com";
     }
 }
